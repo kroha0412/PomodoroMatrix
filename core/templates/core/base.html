@@ -1,0 +1,89 @@
+<!-- core/templates/core/base.html -->
+<!-- Объявление типа документа - говорит браузеру что это HTML5 -->
+<!DOCTYPE html>
+<!-- Открывающий тег HTML с указанием языка страницы -->
+<html lang="ru">
+<head>
+    <!-- Кодировка символов - поддерживает русские буквы -->
+    <meta charset="UTF-8">
+    <!-- Настройка адаптивности для мобильных устройств -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Динамический заголовок страницы -->
+    <title>
+        {% block title %}Pomodoro & Eisenhower System{% endblock %}
+    </title>
+
+    <!-- Загружаем теги для работы со статическими файлами (CSS, JS, изображения) -->
+    {% load static %}
+
+    <!-- Подключаем основной CSS файл -->
+    <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+
+    <!-- Блок для дополнительных CSS файлов -->
+    <!-- Дочерние шаблоны могут добавить свои стили -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="header">
+        <!-- Основная навигация -->
+        <nav class="nav">
+            <!-- Блок с логотипом -->
+            <div class="nav-brand">
+                <!-- Ссылка на главную страницу -->
+                <a href="{% url 'core:home' %}" class="logo">
+                    <!-- Эмодзи и название системы -->
+                    MatrixPomodoro
+                </a>
+            </div>
+
+            <!-- Список навигационных ссылок -->
+            <ul class="nav-links">
+    <li><a href="{% url 'core:home' %}">Главная</a></li>
+    <li><a href="{% url 'core:eisenhower_method' %}">Матрица Эйзенхауэра</a></li>
+    <li><a href="{% url 'core:pomodoro_technique' %}">Метод Pomodoro</a></li>
+    <li><a href="{% url 'core:about' %}">О проекте</a></li>
+
+    <!-- Блок аутентификации -->
+    <li class="nav-auth">
+        {% if user.is_authenticated %}
+            <!-- Если пользователь авторизован - ДОБАВИМ ССЫЛКУ НА МАТРИЦУ -->
+
+            <a href="{% url 'users:profile' %}" class="btn btn-outline">Профиль</a>
+            <a href="{% url 'users:logout' %}" class="btn btn-primary">Выйти</a>
+        {% else %}
+            <!-- Если пользователь не авторизован -->
+            <a href="{% url 'users:login' %}" class="btn btn-outline">Войти</a>
+            <a href="{% url 'users:register' %}" class="btn btn-primary">Регистрация</a>
+        {% endif %}
+    </li>
+</ul>
+        </nav>
+    </header>
+
+    <!-- Основное содержимое страницы -->
+    <main class="main">
+        <!-- Главный блок content - будет переопределен в дочерних шаблонах -->
+        {% block content %}
+        <!-- Здесь будет уникальное содержимое каждой страницы -->
+        {% endblock %}
+    </main>
+
+    <!-- Подвал сайта -->
+    <footer class="footer">
+        <div class="container">
+            <!-- Копирайт с автоматическим годом -->
+            <p>&copy; 2025 MatrixPomodoro System. Все права защищены.</p>
+            <!-- Слоган системы -->
+            <p>Повышаем продуктивность через осознанное планирование</p>
+        </div>
+    </footer>
+
+    <!-- Подключаем основные JavaScript файлы -->
+    <script src="{% static 'core/js/main.js' %}"></script>
+
+    <!-- Блок для дополнительных JavaScript файлов -->
+    <!-- Дочерние шаблоны могут добавить свои скрипты -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

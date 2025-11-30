@@ -1,0 +1,135 @@
+<!-- core/templates/core/pomodoro_technique.html -->
+<!-- Наследуем от базового шаблона base.html -->
+{% extends 'core/base.html' %}
+
+<!-- Загружаем теги для работы со статическими файлами -->
+{% load static %}
+
+<!-- Переопределяем блок title -->
+<!-- ДАННЫЕ ИЗ VIEW: {{ title }} = "Метод Pomodoro" -->
+{% block title %}Обучение - {{ title }}{% endblock %}
+
+<!-- Добавляем дополнительные CSS стили только для этой страницы -->
+{% block extra_css %}
+<!-- Подключаем специальные стили для страниц методологии -->
+<link rel="stylesheet" href="{% static 'core/css/methodology.css' %}">
+{% endblock %}
+
+<!-- Начинаем блок content - основное содержимое страницы -->
+{% block content %}
+
+<!-- Шапка страницы обучения -->
+<section class="methodology-header">
+    <div class="container">
+        <!-- ДАННЫЕ ИЗ VIEW: {{ title }} = "Метод Pomodoro" -->
+        <h1>{{ title }}</h1>
+        <!-- Статический подзаголовок с указанием автора метода -->
+        <p class="lead">Техника управления временем, разработанная Франческо Чирилло</p>
+    </div>
+</section>
+
+<!-- Секция шагов метода Pomodoro -->
+<section class="pomodoro-steps">
+    <div class="container">
+        <h2>5 шагов метода Pomodoro</h2>
+
+        <!-- Временная шкала с шагами метода -->
+        <div class="steps-timeline">
+            <!-- Цикл по списку шагов из view -->
+            <!-- ДАННЫЕ ИЗ VIEW: {{ steps }} = список из 5 словарей с шагами метода -->
+            {% for step in steps %}
+            <div class="step-item">
+                <!-- ДАННЫЕ ИЗ VIEW: {{ step.step }} = номер шага (1,2,3,4,5) -->
+                <div class="step-marker">{{ step.step }}</div>
+                <div class="step-content">
+                    <!-- ДАННЫЕ ИЗ VIEW: {{ step.title }} = название шага -->
+                    <h3>{{ step.title }}</h3>
+                    <!-- ДАННЫЕ ИЗ VIEW: {{ step.description }} = описание шага -->
+                    <p class="step-description">{{ step.description }}</p>
+                    <!-- ДАННЫЕ ИЗ VIEW: {{ step.duration }} = длительность этапа -->
+                    <span class="step-duration">{{ step.duration }}</span>
+                </div>
+            </div>
+            <!-- Конец цикла по шагам -->
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Секция преимуществ метода -->
+<section class="pomodoro-benefits">
+    <div class="container">
+        <h2>Преимущества метода</h2>
+        <div class="benefits-grid">
+            <!-- Цикл по списку преимуществ из view -->
+            <!-- ДАННЫЕ ИЗ VIEW: {{ benefits }} = список преимуществ метода -->
+            {% for benefit in benefits %}
+            <div class="benefit-card">
+                <!-- Статическая иконка галочки -->
+                <div class="benefit-icon">✓</div>
+                <!-- ДАННЫЕ ИЗ VIEW: {{ benefit }} = текст преимущества -->
+                <h4>{{ benefit }}</h4>
+            </div>
+            <!-- Конец цикла по преимуществам -->
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Секция практических советов -->
+<section class="pomodoro-tips">
+    <div class="container">
+        <h2>Советы для эффективного использования</h2>
+
+        <!-- Сетка с тремя категориями советов -->
+        <div class="tips-grid">
+            <!-- Карточка советов по подготовке -->
+            <div class="tip-card">
+                <h3>Подготовка рабочего пространства</h3>
+                <ul>
+                    <li>Уберите все отвлекающие факторы</li>
+                    <li>Подготовьте всё необходимое для работы</li>
+                    <li>Закройте ненужные вкладки в браузере</li>
+                </ul>
+            </div>
+
+            <!-- Карточка советов по работе с таймером -->
+            <div class="tip-card">
+                <h3>Работа с таймером</h3>
+                <ul>
+                    <li>Используйте физический таймер или специальное приложение</li>
+                    <li>Не пропускайте перерывы - они важны для продуктивности</li>
+                    <li>Адаптируйте длительность "помидоров" под себя</li>
+                </ul>
+            </div>
+
+            <!-- Карточка советов по анализу -->
+            <div class="tip-card">
+                <h3>Анализ и улучшение</h3>
+                <ul>
+                    <li>Ведите учет завершенных "помидоров"</li>
+                    <li>Анализируйте, что мешало фокусу</li>
+                    <li>Постепенно увеличивайте количество циклов</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Секция призыва к действию -->
+<section class="methodology-cta">
+    <div class="container">
+        <h2>Готовы попробовать Pomodoro?</h2>
+        <!-- Упоминание функционала системы -->
+        <p>Наша система включает встроенный таймер и трекер сессий!</p>
+        <div class="cta-actions">
+            <!-- Основная кнопка - начать работу с Pomodoro -->
+            <a href="{% url 'users:register' %}" class="btn btn-primary">Начать работать с Pomodoro</a>
+            <!-- Вторичная кнопка - вернуться к матрице Эйзенхауэра -->
+            <a href="{% url 'core:eisenhower_method' %}" class="btn btn-outline">Изучить матрицу Эйзенхауэра</a>
+        </div>
+    </div>
+</section>
+
+<!-- Конец блока content -->
+{% endblock %}

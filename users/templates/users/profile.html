@@ -1,0 +1,208 @@
+<!-- users/templates/users/profile.html -->
+<!-- Наследуем базовый шаблон проекта -->
+{% extends 'core/base.html' %}
+<!-- Подключаем статические файлы -->
+{% load static %}
+
+<!-- Заголовок страницы с динамическим именем пользователя -->
+{% block title %}Профиль - {{ user.username }}{% endblock %}
+
+<!-- Подключение специфичных CSS стилей для страницы профиля -->
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
+{% endblock %}
+
+<!-- Основной контент страницы -->
+{% block content %}
+<div class="profile-container">
+    <!-- Шапка страницы профиля -->
+    <div class="profile-header">
+        <h1>Профиль пользователя</h1>
+        <p>Управление вашими данными и настройками</p>
+    </div>
+
+    <!-- Блок для вывода системных сообщений (успешное сохранение, ошибки и т.д.) -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <!-- message.tags определяет тип сообщения: success, error, warning, info -->
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="profile-content">
+        <!-- Секция с основной информацией пользователя -->
+        <div class="profile-section">
+            <h2>Основная информация</h2>
+            <!-- Форма для обновления основных данных пользователя -->
+            <form method="POST" class="profile-form">
+                {% csrf_token %}
+
+                <!-- Скрытое поле для идентификации типа формы при обработке на сервере -->
+                <input type="hidden" name="form_type" value="user_info">
+
+                <!-- Сетка для расположения полей формы -->
+                <div class="form-grid">
+                    <!-- Поле имени пользователя -->
+                    <div class="form-group">
+                        <label for="{{ user_form.username.id_for_label }}">Имя пользователя *</label>
+                        {{ user_form.username }}
+                        <!-- Вывод ошибок валидации для поля username -->
+                        {% if user_form.username.errors %}
+                        <div class="field-errors">
+                            {% for error in user_form.username.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле email адреса -->
+                    <div class="form-group">
+                        <label for="{{ user_form.email.id_for_label }}">Email адрес *</label>
+                        {{ user_form.email }}
+                        <!-- Вывод ошибок валидации для поля email -->
+                        {% if user_form.email.errors %}
+                        <div class="field-errors">
+                            {% for error in user_form.email.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле имени -->
+                    <div class="form-group">
+                        <label for="{{ user_form.first_name.id_for_label }}">Имя *</label>
+                        {{ user_form.first_name }}
+                        <!-- Вывод ошибок валидации для поля имени -->
+                        {% if user_form.first_name.errors %}
+                        <div class="field-errors">
+                            {% for error in user_form.first_name.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле фамилии -->
+                    <div class="form-group">
+                        <label for="{{ user_form.last_name.id_for_label }}">Фамилия</label>
+                        {{ user_form.last_name }}
+                        <!-- Вывод ошибок валидации для поля фамилии -->
+                        {% if user_form.last_name.errors %}
+                        <div class="field-errors">
+                            {% for error in user_form.last_name.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Кнопка отправки формы -->
+                <button type="submit" class="btn btn-primary">Обновить данные</button>
+            </form>
+        </div>
+
+        <!-- Секция с настройками Pomodoro таймера -->
+        <div class="profile-section">
+            <h2>Настройки Pomodoro</h2>
+            <!-- Форма для обновления настроек таймера -->
+            <form method="POST" class="profile-form">
+                {% csrf_token %}
+                <!-- Скрытое поле для идентификации типа формы -->
+                <input type="hidden" name="form_type" value="user_settings">
+
+                <div class="form-grid">
+                    <!-- Поле длительности Pomodoro (рабочего интервала) -->
+                    <div class="form-group">
+                        <label for="{{ settings_form.pomodoro_duration.id_for_label }}">
+                            {{ settings_form.pomodoro_duration.label }}
+                        </label>
+                        {{ settings_form.pomodoro_duration }}
+                        <!-- Вывод ошибок валидации -->
+                        {% if settings_form.pomodoro_duration.errors %}
+                        <div class="field-errors">
+                            {% for error in settings_form.pomodoro_duration.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <!-- Вывод подсказки для поля (help_text) -->
+                        {% if settings_form.pomodoro_duration.help_text %}
+                        <small class="help-text">{{ settings_form.pomodoro_duration.help_text }}</small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле длительности короткого перерыва -->
+                    <div class="form-group">
+                        <label for="{{ settings_form.short_break_duration.id_for_label }}">
+                            {{ settings_form.short_break_duration.label }}
+                        </label>
+                        {{ settings_form.short_break_duration }}
+                        {% if settings_form.short_break_duration.errors %}
+                        <div class="field-errors">
+                            {% for error in settings_form.short_break_duration.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if settings_form.short_break_duration.help_text %}
+                        <small class="help-text">{{ settings_form.short_break_duration.help_text }}</small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле длительности длинного перерыва -->
+                    <div class="form-group">
+                        <label for="{{ settings_form.long_break_duration.id_for_label }}">
+                            {{ settings_form.long_break_duration.label }}
+                        </label>
+                        {{ settings_form.long_break_duration }}
+                        {% if settings_form.long_break_duration.errors %}
+                        <div class="field-errors">
+                            {% for error in settings_form.long_break_duration.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if settings_form.long_break_duration.help_text %}
+                        <small class="help-text">{{ settings_form.long_break_duration.help_text }}</small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле количества Pomodoro до длинного перерыва -->
+                    <div class="form-group">
+                        <label for="{{ settings_form.pomodoros_before_long_break.id_for_label }}">
+                            {{ settings_form.pomodoros_before_long_break.label }}
+                        </label>
+                        {{ settings_form.pomodoros_before_long_break }}
+                        {% if settings_form.pomodoros_before_long_break.errors %}
+                        <div class="field-errors">
+                            {% for error in settings_form.pomodoros_before_long_break.errors %}
+                            <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if settings_form.pomodoros_before_long_break.help_text %}
+                        <small class="help-text">{{ settings_form.pomodoros_before_long_break.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Кнопка отправки формы настроек -->
+                <button type="submit" class="btn btn-primary">Сохранить настройки</button>
+            </form>
+        </div>
+
+
+                <!-- Кнопка выхода из системы -->
+                <a href="{% url 'users:logout' %}" class="btn btn-outline">Выйти из системы</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

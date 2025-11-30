@@ -1,0 +1,142 @@
+<!-- users/templates/users/register.html -->
+<!-- Наследуем базовый шаблон аутентификации -->
+{% extends 'users/auth_base.html' %}
+<!-- Подключаем статические файлы -->
+{% load static %}
+
+<!-- Блок заголовка страницы для тега <title> -->
+{% block title %}Регистрация - MatrixPomodoro{% endblock %}
+
+<!-- Блок заголовка формы аутентификации -->
+{% block auth_title %}Создать аккаунт{% endblock %}
+
+<!-- Блок подзаголовка формы аутентификации -->
+{% block auth_subtitle %}Присоединяйтесь к системе управления задачами{% endblock %}
+
+<!-- Блок основной формы регистрации -->
+{% block auth_form %}
+<form method="POST" class="auth-form">
+    <!-- CSRF токен - обязательная мера безопасности Django -->
+    {% csrf_token %}
+
+    <!-- Вывод общих ошибок формы -->
+    {% if form.non_field_errors %}
+    <div class="alert alert-error">
+        {% for error in form.non_field_errors %}
+        {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Сетка для расположения полей формы в две колонки -->
+    <div class="form-grid">
+        <!-- Поле имени пользователя -->
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">Имя пользователя *</label>
+            {{ form.username }}
+            <!-- Вывод ошибок валидации для поля username -->
+            {% if form.username.errors %}
+            <div class="field-errors">
+                {% for error in form.username.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <!-- Вывод подсказки для поля username -->
+            {% if form.username.help_text %}
+            <small class="help-text">{{ form.username.help_text }}</small>
+            {% endif %}
+        </div>
+
+        <!-- Поле email -->
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email адрес *</label>
+            {{ form.email }}
+            <!-- Вывод ошибок валидации для поля email -->
+            {% if form.email.errors %}
+            <div class="field-errors">
+                {% for error in form.email.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Поле имени -->
+        <div class="form-group">
+            <label for="{{ form.first_name.id_for_label }}">Имя *</label>
+            {{ form.first_name }}
+            <!-- Вывод ошибок валидации для поля имени -->
+            {% if form.first_name.errors %}
+            <div class="field-errors">
+                {% for error in form.first_name.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Поле фамилии -->
+        <div class="form-group">
+            <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
+            {{ form.last_name }}
+            <!-- Вывод ошибок валидации для поля фамилии -->
+            {% if form.last_name.errors %}
+            <div class="field-errors">
+                {% for error in form.last_name.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Поле пароля 1 -->
+        <div class="form-group">
+            <label for="{{ form.password1.id_for_label }}">Пароль *</label>
+            {{ form.password1 }}
+            <!-- Вывод ошибок валидации для первого поля пароля -->
+            {% if form.password1.errors %}
+            <div class="field-errors">
+                {% for error in form.password1.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <!-- Вывод подсказки для создания пароля -->
+            {% if form.password1.help_text %}
+            <small class="help-text">{{ form.password1.help_text }}</small>
+            {% endif %}
+        </div>
+
+        <!-- Поле подтверждения пароля -->
+        <div class="form-group">
+            <label for="{{ form.password2.id_for_label }}">Подтверждение пароля *</label>
+            {{ form.password2 }}
+            <!-- Вывод ошибок валидации для подтверждения пароля -->
+            {% if form.password2.errors %}
+            <div class="field-errors">
+                {% for error in form.password2.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <!-- Вывод подсказки для подтверждения пароля -->
+            {% if form.password2.help_text %}
+            <small class="help-text">{{ form.password2.help_text }}</small>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Кнопка отправки формы регистрации -->
+    <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+</form>
+{% endblock %}
+
+<!-- Блок дополнительных ссылок на странице регистрации -->
+{% block auth_links %}
+<!-- Ссылка на страницу входа для существующих пользователей -->
+<p>Уже есть аккаунт? <a href="{% url 'users:login' %}">Войдите в систему</a></p>
+
+<!-- Ссылка для возврата на главную страницу сайта -->
+<p><a href="{% url 'core:home' %}">Вернуться на главную</a></p>
+{% endblock %}

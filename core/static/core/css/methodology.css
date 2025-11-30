@@ -1,0 +1,314 @@
+/* core/static/core/css/methodology.css */
+/* Общие стили для страниц обучения */
+.methodology-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Градиент как на главной */
+    color: white;                   /* Белый текст для контраста */
+    padding: 3rem 0;                /* Большие отступы сверху/снизу */
+    text-align: center;             /* Центрирование содержимого */
+}
+
+.methodology-header h1 {
+    font-size: 2.5rem;              /* Крупный заголовок (40px) */
+    margin-bottom: 1rem;            /* Отступ снизу */
+}
+
+.lead {
+    font-size: 1.2rem;              /* Увеличенный шрифт для вводного текста */
+    opacity: 0.9;                   /* Легкая прозрачность для мягкости */
+}
+
+/* Сетка контента для страницы "О проекте" */
+.content-grid {
+    display: grid;                  /* CSS Grid для двухколоночной раскладки */
+    grid-template-columns: 2fr 1fr; /* Левая колонка в 2 раза шире правой */
+    gap: 3rem;                      /* Расстояние между колонками */
+    margin: 3rem 0;                 /* Отступы сверху/снизу */
+}
+
+.text-content h2 {
+    color: #667eea;                 /* Синий цвет заголовков второго уровня */
+    margin: 2rem 0 1rem 0;          /* Отступы: 2rem сверху, 1rem снизу */
+}
+
+.text-content h3 {
+    color: #333;                    /* Темно-серый для заголовков третьего уровня */
+    margin: 1.5rem 0 1rem 0;        /* Отступы: 1.5rem сверху, 1rem снизу */
+}
+
+.audience-cards {
+    display: grid;                  /* Grid для карточек аудитории */
+    gap: 1rem;                      /* Расстояние между карточками */
+    margin: 2rem 0;                 /* Отступы сверху/снизу */
+}
+
+.audience-card {
+    background: #f8f9fa;            /* Светло-серый фон карточек */
+    padding: 1.5rem;                /* Внутренние отступы */
+    border-radius: 8px;             /* Закругленные углы */
+    border-left: 4px solid #4ECDC4; /* Бирюзовая акцентная полоса слева */
+}
+
+.visual-content {
+    display: flex;                  /* Flexbox для вертикального расположения */
+    flex-direction: column;         /* Элементы в колонку */
+    gap: 2rem;                      /* Расстояние между элементами */
+}
+
+.info-box, .cta-box {
+    background: white;              /* Белый фон информационных блоков */
+    padding: 2rem;                  /* Внутренние отступы */
+    border-radius: 10px;            /* Закругленные углы */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Легкая тень для объема */
+}
+
+.info-box h3, .cta-box h3 {
+    color: #667eea;                 /* Синий цвет заголовков */
+    margin-bottom: 1rem;            /* Отступ снизу */
+}
+
+/* Стили для матрицы Эйзенхауэра - ИСПРАВЛЕНО */
+.quadrants-grid {
+    display: grid;                  /* CSS Grid для сетки квадрантов */
+    grid-template-columns: 1fr 1fr; /* Фиксировано 2 колонки */
+    grid-template-rows: auto auto;  /* 2 строки */
+    gap: 2rem;                      /* Расстояние между карточками */
+    margin: 3rem 0;                 /* Отступы сверху/снизу */
+}
+
+.quadrant-card {
+    background: white;              /* Белый фон карточек */
+    padding: 2rem;                  /* Внутренние отступы */
+    border-radius: 10px;            /* Закругленные углы */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Тень для объема */
+    transition: transform 0.3s;     /* Плавная анимация трансформации */
+}
+
+.quadrant-card:hover {
+    transform: translateY(-5px);    /* Подъем карточки при наведении */
+}
+
+.quadrant-header {
+    display: flex;                  /* Flexbox для расположения заголовка и стратегии */
+    justify-content: space-between; /* Распределение пространства между элементами - ИСПРАВЛЕНО */
+    align-items: start;             /* Выравнивание по верхнему краю */
+    margin-bottom: 1rem;            /* Отступ снизу */
+}
+
+.quadrant-header h3 {
+    flex: 1;                        /* Заголовок занимает всё доступное пространство */
+    color: #333;                    /* Темно-серый цвет */
+    margin: 0;                      /* Убираем стандартные отступы */
+}
+
+.quadrant-strategy {
+    background: #4ECDC4;            /* Бирюзовый фон */
+    color: white;                   /* Белый текст */
+    padding: 0.3rem 0.8rem;         /* Компактные внутренние отступы */
+    border-radius: 20px;            /* Сильно закругленные углы (капсула) */
+    font-size: 0.8rem;              /* Уменьшенный шрифт */
+    font-weight: bold;              /* Жирное начертание */
+}
+
+.quadrant-description {
+    color: #666;                    /* Серый цвет для второстепенного текста */
+    margin-bottom: 1.5rem;          /* Отступ снизу */
+    font-style: italic;             /* Курсив для выделения */
+}
+
+.quadrant-examples h4 {
+    color: #333;                    /* Темно-серый для подзаголовков */
+    margin-bottom: 0.5rem;          /* Небольшой отступ снизу */
+}
+
+.quadrant-tips {
+    margin-top: 1.5rem;             /* Отступ сверху от предыдущего блока */
+    padding-top: 1.5rem;            /* Отступ сверху внутри блока */
+    border-top: 1px solid #eee;     /* Серая разделительная линия */
+}
+
+.quadrant-tips h4 {
+    color: #4ECDC4;                 /* Бирюзовый цвет для заголовков советов */
+    margin-bottom: 0.5rem;          /* Небольшой отступ снизу */
+}
+
+/* Стили для Pomodoro */
+.steps-timeline {
+    margin: 3rem 0;                 /* Отступы сверху/снизу */
+    position: relative;             /* Для позиционирования псевдоэлемента */
+}
+
+.steps-timeline:before {
+    content: '';                    /* Обязательно для псевдоэлемента */
+    position: absolute;              /* Абсолютное позиционирование */
+    left: 30px;                     /* Отступ слева для выравнивания с маркерами */
+    top: 0;                         /* Начинается сверху */
+    bottom: 0;                      /* Заканчивается снизу */
+    width: 2px;                     /* Тонкая линия */
+    background: #4ECDC4;            /* Бирюзовый цвет */
+}
+
+.step-item {
+    display: flex;                  /* Flexbox для расположения маркера и контента */
+    margin-bottom: 3rem;            /* Большой отступ между шагами */
+    position: relative;             /* Для корректного отображения на временной шкале */
+}
+
+.step-marker {
+    width: 60px;                    /* Фиксированная ширина круга */
+    height: 60px;                   /* Фиксированная высота круга */
+    background: #4ECDC4;            /* Бирюзовый фон */
+    color: white;                   /* Белый цвет цифры */
+    border-radius: 50%;             /* Круглая форма */
+    display: flex;                  /* Flexbox для центрирования */
+    align-items: center;            /* Вертикальное центрирование */
+    justify-content: center;        /* Горизонтальное центрирование */
+    font-size: 1.5rem;              /* Крупный шрифт для цифры */
+    font-weight: bold;              /* Жирное начертание */
+    margin-right: 2rem;             /* Отступ справа от контента */
+    z-index: 2;                     /* Поверх временной линии */
+}
+
+.step-content {
+    flex: 1;                        /* Занимает всё оставшееся пространство */
+    background: white;              /* Белый фон */
+    padding: 1.5rem;                /* Внутренние отступы */
+    border-radius: 8px;             /* Закругленные углы */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1); /* Легкая тень */
+}
+
+.step-content h3 {
+    color: #667eea;                 /* Синий цвет заголовков шагов */
+    margin-bottom: 0.5rem;          /* Небольшой отступ снизу */
+}
+
+.step-duration {
+    color: #4ECDC4;                 /* Бирюзовый цвет для длительности */
+    font-weight: bold;              /* Жирное начертание */
+    font-size: 0.9rem;              /* Чуть уменьшенный шрифт */
+}
+
+.benefits-grid {
+    display: grid;                  /* CSS Grid для сетки преимуществ */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Автоподбор колонок */
+    gap: 1.5rem;                    /* Расстояние между карточками */
+    margin: 2rem 0;                 /* Отступы сверху/снизу */
+}
+
+.benefit-card {
+    background: white;              /* Белый фон карточек */
+    padding: 1.5rem;                /* Внутренние отступы */
+    border-radius: 8px;             /* Закругленные углы */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1); /* Легкая тень */
+    text-align: center;             /* Центрирование содержимого */
+}
+
+.benefit-icon {
+    width: 40px;                    /* Фиксированная ширина иконки */
+    height: 40px;                   /* Фиксированная высота иконки */
+    background: #4ECDC4;            /* Бирюзовый фон */
+    color: white;                   /* Белый цвет галочки */
+    border-radius: 50%;             /* Круглая форма */
+    display: flex;                  /* Flexbox для центрирования */
+    align-items: center;            /* Вертикальное центрирование */
+    justify-content: center;        /* Горизонтальное центрирование */
+    margin: 0 auto 1rem;            /* Центрирование и отступ снизу */
+    font-weight: bold;              /* Жирное начертание галочки */
+}
+
+.tips-grid {
+    display: grid;                  /* CSS Grid для сетки советов */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Автоподбор колонок */
+    gap: 2rem;                      /* Расстояние между карточками */
+    margin: 2rem 0;                 /* Отступы сверху/снизу */
+}
+
+.tip-card {
+    background: white;              /* Белый фон карточек */
+    padding: 2rem;                  /* Внутренние отступы */
+    border-radius: 10px;            /* Закругленные углы */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Тень для объема */
+}
+
+.tip-card h3 {
+    color: #667eea;                 /* Синий цвет заголовков советов */
+    margin-bottom: 1rem;            /* Отступ снизу */
+}
+
+/* Призыв к действию на страницах обучения */
+.methodology-cta {
+    background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%); /* Градиент от бирюзового к зеленому */
+    color: white;                   /* Белый текст */
+    padding: 3rem 0;                /* Большие отступы сверху/снизу */
+    text-align: center;             /* Центрирование содержимого */
+    margin-top: 3rem;               /* Отступ сверху от предыдущей секции */
+}
+
+.methodology-cta h2 {
+    margin-bottom: 1rem;            /* Отступ снизу */
+}
+
+.cta-actions {
+    display: flex;                  /* Flexbox для расположения кнопок */
+    gap: 1rem;                      /* Расстояние между кнопками */
+    justify-content: center;        /* Центрирование кнопок */
+    margin-top: 2rem;               /* Отступ сверху от текста */
+    flex-wrap: wrap;                /* Перенос кнопок на новую строку при необходимости */
+}
+
+/* Практическое руководство */
+.guide-steps {
+    display: grid;                  /* CSS Grid для сетки шагов */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Автоподбор колонок */
+    gap: 2rem;                      /* Расстояние между шагами */
+    margin: 3rem 0;                 /* Отступы сверху/снизу */
+}
+
+.step {
+    text-align: center;             /* Центрирование содержимого шага */
+    padding: 2rem;                  /* Внутренние отступы */
+}
+
+.step-number {
+    width: 50px;                    /* Фиксированная ширина круга */
+    height: 50px;                   /* Фиксированная высота круга */
+    background: #667eea;            /* Синий фон */
+    color: white;                   /* Белый цвет цифры */
+    border-radius: 50%;             /* Круглая форма */
+    display: flex;                  /* Flexbox для центрирования */
+    align-items: center;            /* Вертикальное центрирование */
+    justify-content: center;        /* Горизонтальное центрирование */
+    font-size: 1.2rem;              /* Размер шрифта для цифры */
+    font-weight: bold;              /* Жирное начертание */
+    margin: 0 auto 1rem;            /* Центрирование и отступ снизу */
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .content-grid {
+        grid-template-columns: 1fr; /* Одна колонка вместо двух на мобильных */
+    }
+
+    .quadrants-grid {
+        grid-template-columns: 1fr; /* Одна колонка на мобильных */
+        grid-template-rows: repeat(4, auto); /* 4 строки для 4 квадрантов */
+    }
+
+    .steps-timeline:before {
+        left: 25px;                 /* Сдвигаем временную линию левее */
+    }
+
+    .step-marker {
+        width: 50px;                /* Уменьшаем размер маркеров */
+        height: 50px;               /* Уменьшаем размер маркеров */
+        margin-right: 1rem;         /* Уменьшаем отступ справа */
+    }
+
+    .cta-actions {
+        flex-direction: column;     /* Вертикальное расположение кнопок */
+        align-items: center;        /* Центрирование кнопок */
+    }
+
+    .cta-actions .btn {
+        width: 200px;               /* Фиксированная ширина кнопок на мобильных */
+    }
+}

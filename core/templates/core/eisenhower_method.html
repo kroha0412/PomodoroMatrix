@@ -1,0 +1,143 @@
+<!-- core/templates/core/eisenhower_method.html -->
+<!-- Наследуем от базового шаблона base.html -->
+{% extends 'core/base.html' %}
+
+<!-- Загружаем теги для работы со статическими файлами -->
+{% load static %}
+
+<!-- Переопределяем блок title -->
+<!-- ДАННЫЕ ИЗ VIEW: {{ title }} = "Матрица Эйзенхауэра" -->
+{% block title %}Обучение - {{ title }}{% endblock %}
+
+<!-- Добавляем дополнительные CSS стили только для этой страницы -->
+{% block extra_css %}
+<!-- Подключаем специальные стили для страниц методологии -->
+<link rel="stylesheet" href="{% static 'core/css/methodology.css' %}">
+{% endblock %}
+
+<!-- Начинаем блок content - основное содержимое страницы -->
+{% block content %}
+
+<!-- Шапка страницы обучения -->
+<section class="methodology-header">
+    <div class="container">
+        <!-- ДАННЫЕ ИЗ VIEW: {{ title }} = "Матрица Эйзенхауэра" -->
+        <h1>{{ title }}</h1>
+        <!-- Статический подзаголовок с исторической справкой -->
+        <p class="lead">Метод приоритизации задач, который использовал Дуайт Эйзенхауэр</p>
+    </div>
+</section>
+
+<!-- Секция объяснения квадрантов -->
+<section class="quadrants-explanation">
+    <div class="container">
+        <h2>Четыре квадранта продуктивности</h2>
+        <p>Матрица делит все задачи на 4 категории по критериям важности и срочности:</p>
+
+        <!-- Сетка для отображения всех 4 квадрантов -->
+        <div class="quadrants-grid">
+            <!-- Цикл по списку квадрантов из view -->
+            <!-- ДАННЫЕ ИЗ VIEW: {{ quadrants }} = список из 4 словарей с данными квадрантов -->
+            {% for quadrant in quadrants %}
+            <!-- Карточка квадранта с динамическим цветом границы -->
+            <!-- ДАННЫЕ ИЗ VIEW: {{ quadrant.color }} = HEX-код цвета (#FF6B6B, #4ECDC4 и т.д.) -->
+            <div class="quadrant-card" style="border-left: 5px solid {{ quadrant.color }};">
+                <div class="quadrant-header">
+                    <!-- ДАННЫЕ ИЗ VIEW: {{ quadrant.name }} = название квадранта -->
+                    <h3>{{ quadrant.name }}</h3>
+                    <!-- ДАННЫЕ ИЗ VIEW: {{ quadrant.strategy }} = рекомендуемая стратегия -->
+                    <span class="quadrant-strategy">{{ quadrant.strategy }}</span>
+                </div>
+                <!-- ДАННЫЕ ИЗ VIEW: {{ quadrant.description }} = описание квадранта -->
+                <p class="quadrant-description">{{ quadrant.description }}</p>
+
+                <!-- Блок с примерами задач -->
+                <div class="quadrant-examples">
+                    <h4>Примеры задач:</h4>
+                    <ul>
+                        <!-- Вложенный цикл по примерам задач для этого квадранта -->
+                        <!-- ДАННЫЕ ИЗ VIEW: {{ quadrant.examples }} = список примеров задач -->
+                        {% for example in quadrant.examples %}
+                        <li>{{ example }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Блок с советами -->
+                <div class="quadrant-tips">
+                    <h4>Советы:</h4>
+                    <p>
+                        <!-- Условные операторы для разных советов для каждого квадранта -->
+                        <!-- Django тег: {{ forloop.counter }} = номер текущей итерации (1,2,3,4) -->
+                        {% if forloop.counter == 1 %}
+                        Старайтесь минимизировать задачи в этом квадранте через лучшее планирование.
+                        {% elif forloop.counter == 2 %}
+                        Это самый важный квадрант для долгосрочного успеха.
+                        {% elif forloop.counter == 3 %}
+                        Учитесь говорить "нет" и делегировать такие задачи.
+                        {% else %}
+                        Максимально исключайте или ограничивайте время в этом квадранте.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <!-- Конец цикла по квадрантам -->
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Секция практического руководства -->
+<section class="practical-guide">
+    <div class="container">
+        <h2>Как использовать матрицу на практике</h2>
+
+        <!-- Сетка шагов для практического применения -->
+        <div class="guide-steps">
+            <!-- Шаг 1 - составление списка задач -->
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Составьте список всех задач</h3>
+                <p>Запишите всё, что вам нужно сделать - рабочие задачи, личные дела, долгосрочные цели.</p>
+            </div>
+
+            <!-- Шаг 2 - классификация задач -->
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Классифицируйте по важности и срочности</h3>
+                <p>Для каждой задачи задайте два вопроса: "Это важно для моих целей?" и "Это нужно сделать срочно?"</p>
+            </div>
+
+            <!-- Шаг 3 - распределение по квадрантам -->
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Распределите по квадрантам</h3>
+                <p>Поместите каждую задачу в соответствующий квадрант матрицы.</p>
+            </div>
+
+            <!-- Шаг 4 - выполнение по стратегии -->
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Действуйте согласно стратегии</h3>
+                <p>Выполняйте задачи в порядке приоритета квадрантов: 1 → 2 → 3 → 4.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Секция призыва к действию -->
+<section class="methodology-cta">
+    <div class="container">
+        <h2>Готовы применить матрицу на практике?</h2>
+        <p>Зарегистрируйтесь и начните использовать интерактивную матрицу Эйзенхауэра прямо сейчас!</p>
+        <div class="cta-actions">
+            <!-- Основная кнопка - начать использование -->
+            <a href="{% url 'users:register' %}" class="btn btn-primary">Начать использовать</a>
+            <!-- Вторичная кнопка - изучить следующий метод -->
+            <a href="{% url 'core:pomodoro_technique' %}" class="btn btn-outline">Изучить метод Pomodoro</a>
+        </div>
+    </div>
+</section>
+
+<!-- Конец блока content -->
+{% endblock %}

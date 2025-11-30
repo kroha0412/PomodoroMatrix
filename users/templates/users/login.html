@@ -1,0 +1,93 @@
+<!-- users/templates/users/login.html -->
+<!-- Наследуем базовый шаблон аутентификации -->
+{% extends 'users/auth_base.html' %}
+<!-- Подключаем статические файлы -->
+{% load static %}
+
+<!-- Блок заголовка страницы для тега <title> -->
+{% block title %}Вход в систему - MatrixPomodoro{% endblock %}
+
+<!-- Блок заголовка формы аутентификации -->
+{% block auth_title %}Вход в систему{% endblock %}
+
+<!-- Блок подзаголовка формы аутентификации -->
+{% block auth_subtitle %}Войдите в ваш аккаунт MatrixPomodoro{% endblock %}
+
+<!-- Блок основной формы аутентификации -->
+{% block auth_form %}
+<!-- Форма для отправки данных методом POST -->
+<form method="POST" class="auth-form">
+    <!-- CSRF токен - обязательная защита от межсайтовой подделки запросов в Django -->
+    {% csrf_token %}
+
+    <!-- Блок для вывода общих (не привязанных к конкретному полю) ошибок формы -->
+    <!-- Например: "Неверное имя пользователя или пароль" -->
+    {% if form.non_field_errors %}
+    <div class="alert alert-error">
+        <!-- Перебираем все общие ошибки формы -->
+        {% for error in form.non_field_errors %}
+        <!-- Выводим текст ошибки -->
+        {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Группа поля для имени пользователя -->
+    <div class="form-group">
+        <!-- Связываем label с полем ввода через id_for_label -->
+        <label for="{{ form.username.id_for_label }}">Имя пользователя</label>
+        <!-- Отображаем поле ввода имени пользователя -->
+        {{ form.username }}
+        <!-- Проверяем есть ли ошибки валидации для этого поля -->
+        {% if form.username.errors %}
+        <div class="field-errors">
+            <!-- Перебираем все ошибки поля username -->
+            {% for error in form.username.errors %}
+            <!-- Выводим каждую ошибку -->
+            <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Группа поля для пароля -->
+    <div class="form-group">
+        <!-- Связываем label с полем ввода пароля -->
+        <label for="{{ form.password.id_for_label }}">Пароль</label>
+        <!-- Отображаем поле ввода пароля (тип password скрывает ввод) -->
+        {{ form.password }}
+        <!-- Проверяем есть ли ошибки валидации для поля пароля -->
+        {% if form.password.errors %}
+        <div class="field-errors">
+            <!-- Перебираем все ошибки поля password -->
+            {% for error in form.password.errors %}
+            <!-- Выводим каждую ошибку -->
+            <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Кнопка отправки формы -->
+    <!--
+        type="submit" - отправляет форму при клике
+        class="btn btn-primary btn-full" - классы для стилизации:
+        - btn: базовый класс кнопки
+        - btn-primary: основной стиль кнопки
+        - btn-full: вероятно, кнопка на всю ширину контейнера
+    -->
+    <button type="submit" class="btn btn-primary btn-full">Войти</button>
+</form>
+{% endblock %}
+
+<!-- Блок дополнительных ссылок на странице аутентификации -->
+{% block auth_links %}
+<!-- Ссылка на страницу регистрации для новых пользователей -->
+<p>Нет аккаунта? <a href="{% url 'users:register' %}">Зарегистрируйтесь</a></p>
+
+<!-- Ссылка на страницу восстановления пароля -->
+<p><a href="{% url 'users:password_reset' %}">Забыли пароль?</a></p>
+
+<!-- Ссылка для возврата на главную страницу сайта -->
+<p><a href="{% url 'core:home' %}">Вернуться на главную</a></p>
+{% endblock %}
