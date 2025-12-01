@@ -1,9 +1,8 @@
 <!-- tasks/templates/tasks/eisenhower_matrix.html -->
 {% extends 'core/base.html' %}
 {% load static %}
-{% load tasks_extras %}
 
-{% block title %}Матрица Эйзенхауэра - MatrixPomodoro{% endblock %}
+{% block title %}Матрица Эйзенхауэра{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'tasks/css/matrix.css' %}">
@@ -11,153 +10,137 @@
 
 {% block content %}
 <div class="matrix-container">
-    <!-- Заголовок страницы -->
     <div class="matrix-header">
         <h1>Матрица Эйзенхауэра</h1>
-        <p>Распределите ваши задачи по четырем квадрантам приоритетов</p>
+        <p>Создавайте задачи и распределяйте их по квадрантам</p>
     </div>
 
-    <!-- Форма создания новой задачи -->
-    <div class="task-create-section">
-        <button class="btn btn-primary" id="show-task-form-btn">
-            ➕ Добавить новую задачу
-        </button>
+    <div class="matrix-layout">
 
-        <div class="task-form-container" id="task-form-container" style="display: none;">
-            <h3>Создать новую задачу</h3>
-            <form id="task-form" method="POST" action="{% url 'tasks:create_task' %}">
-                {% csrf_token %}
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="{{ task_form.title.id_for_label }}">Название задачи *</label>
-                        {{ task_form.title }}
-                    </div>
+        <!-- ЛЕВАЯ КОЛОНКА: Список задач -->
+        <div class="tasks-sidebar">
+            <h3>Мои задачи</h3>
+
+            <!-- Форма создания задачи -->
+            <div class="create-task-form">
+                <form id="task-form" method="POST" action="{% url 'tasks:matrix' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="priority" value="1">
+                    <input type="hidden" name="estimated_pomodoros" value="1">
 
                     <div class="form-group">
-                        <label for="{{ task_form.quadrant.id_for_label }}">Квадрант *</label>
-                        {{ task_form.quadrant }}
+                        <input type="text" name="title" id="task-title-input" class="form-control"
+                               placeholder="Название новой задачи..." required>
+                        <div class="error-message" id="title-error"></div>
                     </div>
-
                     <div class="form-group">
-                        <label for="{{ task_form.priority.id_for_label }}">Приоритет (1-10)</label>
-                        {{ task_form.priority }}
+                        <textarea name="description" id="task-description-input" class="form-control"
+                                  placeholder="Описание (необязательно)" rows="2"></textarea>
                     </div>
-
-                    <div class="form-group">
-                        <label for="{{ task_form.estimated_pomodoros.id_for_label }}">Pomodoro</label>
-                        {{ task_form.estimated_pomodoros }}
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="create-task-btn">
+                            + Создать задачу
+                        </button>
                     </div>
-
-                    <div class="form-group full-width">
-                        <label for="{{ task_form.description.id_for_label }}">Описание</label>
-                        {{ task_form.description }}
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ task_form.due_date.id_for_label }}">Срок выполнения</label>
-                        {{ task_form.due_date }}
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Создать задачу</button>
-                    <button type="button" class="btn btn-outline" id="cancel-task-form">Отмена</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Основная матрица -->
-    <div class="eisenhower-matrix">
-        {% for quadrant in quadrants %}
-        <div class="quadrant" data-quadrant-id="{{ quadrant.id }}" style="border-color: {{ quadrant.color_code }};">
-            <!-- Заголовок квадранта -->
-            <div class="quadrant-header" style="background: {{ quadrant.color_code }};">
-                <h3>{{ quadrant.name }}</h3>
-                <p class="quadrant-description">{{ quadrant.description }}</p>
+                </form>
             </div>
 
-            <!-- Контейнер для задач -->
-            <div class="tasks-container" id="quadrant-{{ quadrant.id }}">
-                {% for task in tasks_by_quadrant|get_item:quadrant.id %}
-                <div class="task-card" data-task-id="{{ task.id }}" draggable="true">
-                    <div class="task-header">
-                        <h4 class="task-title">{{ task.title }}</h4>
-                        <div class="task-actions">
-                            <button class="btn-edit" data-task-id="{{ task.id }}">✏️</button>
-                            <button class="btn-delete" data-task-id="{{ task.id }}">🗑️</button>
-                            <button class="btn-complete" data-task-id="{{ task.id }}">✅</button>
+            <!-- Список нераспределенных задач -->
+            <div class="tasks-list" id="tasks-list">
+                {% if unassigned_tasks %}
+                    {% for task in unassigned_tasks %}
+                    <div class="task-card"
+                         data-task-id="{{ task.id }}"
+                         draggable="true"
+                         id="task-{{ task.id }}">
+                        <div class="task-header">
+                            <h4 class="task-title">{{ task.title }}</h4>
+                            <div class="task-actions">
+                                <button class="btn-edit" data-task-id="{{ task.id }}">✏️</button>
+                                <button class="btn-delete" data-task-id="{{ task.id }}">🗑️</button>
+                            </div>
                         </div>
-                    </div>
-
-                    {% if task.description %}
-                    <p class="task-description">{{ task.description }}</p>
-                    {% endif %}
-
-                    <div class="task-meta">
-                        <span class="task-priority">Приоритет: {{ task.priority }}</span>
-                        <span class="task-pomodoros">🍅 {{ task.estimated_pomodoros }}</span>
-                        {% if task.due_date %}
-                        <span class="task-due-date">📅 {{ task.due_date|date:"d.m.Y H:i" }}</span>
+                        {% if task.description %}
+                        <p class="task-description">{{ task.description }}</p>
                         {% endif %}
                     </div>
-                </div>
-                {% empty %}
-                <div class="empty-state">
-                    <p>Перетащите сюда задачи или создайте новые</p>
-                </div>
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
-        {% endfor %}
+
+        <!-- ПРАВАЯ КОЛОНКА: Матрица -->
+        <div class="matrix-main">
+            <div class="eisenhower-matrix">
+
+                {% for quadrant in quadrants %}
+                <div class="quadrant" style="border-color: {{ quadrant.color_code }};">
+                    <div class="quadrant-header" style="background-color: {{ quadrant.color_code }};">
+                        <h3>{{ quadrant.name }}</h3>
+                    </div>
+                    <div class="tasks-container"
+                         id="quadrant-{{ quadrant.id }}"
+                         data-quadrant-id="{{ quadrant.id }}">
+
+                        {% for task in tasks %}
+                            {% if task.quadrant_id == quadrant.id %}
+                            <div class="task-card"
+                                 data-task-id="{{ task.id }}"
+                                 draggable="true">
+                                <div class="task-header">
+                                    <h4 class="task-title">{{ task.title }}</h4>
+                                    <div class="task-actions">
+                                        <button class="btn-edit" data-task-id="{{ task.id }}">✏️</button>
+                                        <button class="btn-delete" data-task-id="{{ task.id }}">🗑️</button>
+                                    </div>
+                                </div>
+                                {% if task.description %}
+                                <p class="task-description">{{ task.description }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+
     </div>
 </div>
 
 <!-- Модальное окно для редактирования задачи -->
-<div class="modal" id="edit-task-modal">
+<div id="edit-task-modal" class="modal">
     <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Редактировать задачу</h3>
+        <button class="close">&times;</button>
+        <div class="modal-header">
+            <h3>Редактировать задачу</h3>
+        </div>
         <form id="edit-task-form">
             {% csrf_token %}
-            <input type="hidden" id="edit-task-id" name="task_id">
+            <input type="hidden" id="edit-task-id">
             <div class="form-group">
-                <label>Название задачи</label>
+                <label for="edit-task-title">Название</label>
                 <input type="text" id="edit-task-title" class="form-control" required>
+                <div class="error-message" id="edit-title-error"></div>
             </div>
             <div class="form-group">
-                <label>Описание</label>
+                <label for="edit-task-description">Описание</label>
                 <textarea id="edit-task-description" class="form-control" rows="3"></textarea>
             </div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Квадрант</label>
-                    <select id="edit-task-quadrant" class="form-control">
-                        {% for quadrant in quadrants %}
-                        <option value="{{ quadrant.id }}">{{ quadrant.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Приоритет</label>
-                    <input type="number" id="edit-task-priority" class="form-control" min="1" max="10">
-                </div>
-                <div class="form-group">
-                    <label>Pomodoro</label>
-                    <input type="number" id="edit-task-pomodoros" class="form-control" min="1" max="20">
-                </div>
-            </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Сохранить</button>
-                <button type="button" class="btn btn-outline" id="cancel-edit">Отмена</button>
+                <button type="submit" class="btn btn-primary" id="save-task-btn">Сохранить</button>
+                <button type="button" id="cancel-edit" class="btn btn-outline">Отмена</button>
             </div>
         </form>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'tasks/js/dragdrop.js' %}"></script>
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
-<script src="{% static 'tasks/js/matrix.js' %}"></script>
 {% endblock %}

@@ -1,37 +1,39 @@
-// tasks/static/tasks/js/tasks.js
+// tasks/static/tasks/js/tasks.js - УПРОЩЕННАЯ ВЕРСИЯ
 class TaskManager {
     constructor() {
         this.init();
     }
 
     init() {
+        console.log('TaskManager initialized');
         this.setupEventListeners();
+        this.setupDragAndDrop();
         this.setupModal();
     }
 
     setupEventListeners() {
-        // Кнопка показа формы создания задачи
-        document.getElementById('show-task-form-btn')?.addEventListener('click', () => {
-            this.toggleTaskForm();
-        });
+        // Обработка формы создания задачи
+        const taskForm = document.getElementById('task-form');
+        if (taskForm) {
+            taskForm.addEventListener('submit', (e) => this.handleCreateTask(e));
+        }
 
-        document.getElementById('cancel-task-form')?.addEventListener('click', () => {
-            this.toggleTaskForm(false);
-        });
-
-        // Форма создания задачи
-        document.getElementById('task-form')?.addEventListener('submit', (e) => {
-            this.handleCreateTask(e);
-        });
-
-        // Обработчики для кнопок действий с задачами
+        // Делегирование событий
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('btn-edit')) {
-                this.handleEditTask(e.target.dataset.taskId);
-            } else if (e.target.classList.contains('btn-delete')) {
-                this.handleDeleteTask(e.target.dataset.taskId);
-            } else if (e.target.classList.contains('btn-complete')) {
-                this.handleCompleteTask(e.target.dataset.taskId);
+            if (e.target.classList.contains('btn-edit') ||
+                e.target.closest('.btn-edit')) {
+                const button = e.target.classList.contains('btn-edit') ?
+                              e.target : e.target.closest('.btn-edit');
+                const taskId = button.dataset.taskId;
+                this.handleEditTask(taskId);
+            }
+
+            if (e.target.classList.contains('btn-delete') ||
+                e.target.closest('.btn-delete')) {
+                const button = e.target.classList.contains('btn-delete') ?
+                              e.target : e.target.closest('.btn-delete');
+                const taskId = button.dataset.taskId;
+                this.handleDeleteTask(taskId);
             }
         });
     }
@@ -40,36 +42,33 @@ class TaskManager {
         const modal = document.getElementById('edit-task-modal');
         const closeBtn = modal.querySelector('.close');
         const cancelBtn = document.getElementById('cancel-edit');
+        const editForm = document.getElementById('edit-task-form');
 
-        // Закрытие модального окна
         closeBtn.addEventListener('click', () => this.closeModal());
         cancelBtn.addEventListener('click', () => this.closeModal());
 
-        // Закрытие при клике вне модального окна
         window.addEventListener('click', (e) => {
             if (e.target === modal) {
                 this.closeModal();
             }
         });
 
-        // Форма редактирования
-        document.getElementById('edit-task-form').addEventListener('submit', (e) => {
-            this.handleUpdateTask(e);
-        });
+        editForm.addEventListener('submit', (e) => this.handleUpdateTask(e));
     }
 
-    toggleTaskForm(show = true) {
-        const formContainer = document.getElementById('task-form-container');
-        const showBtn = document.getElementById('show-task-form-btn');
+    setupDragAndDrop() {
+        const taskCards = document.querySelectorAll('.task-card[draggable="true"]');
+        const containers = document.querySelectorAll('.tasks-container, #tasks-list');
 
-        if (show) {
-            formContainer.style.display = 'block';
-            showBtn.style.display = 'none';
-        } else {
-            formContainer.style.display = 'none';
-            showBtn.style.display = 'block';
-            document.getElementById('task-form').reset();
-        }
+        taskCards.forEach(task => {
+            task.addEventListener('dragstart', (e) => this.handleDragStart(e));
+            task.addEventListener('dragend', (e) => this.handleDragEnd(e));
+        });
+
+        containers.forEach(container => {
+            container.addEventListener('dragover', (e) => this.handleDragOver(e));
+            container.addEventListener('drop', (e) => this.handleDrop(e));
+        });
     }
 
     async handleCreateTask(e) {
@@ -77,6 +76,19 @@ class TaskManager {
 
         const form = e.target;
         const formData = new FormData(form);
+        const createBtn = document.getElementById('create-task-btn');
+
+        // Валидация
+        const title = document.getElementById('task-title-input').value.trim();
+        if (!title) {
+            this.showError('title-error', 'Введите название задачи');
+            return;
+        }
+
+        // Показываем loading
+        const originalText = createBtn.textContent;
+        createBtn.textContent = 'Создание...';
+        createBtn.disabled = true;
 
         try {
             const response = await fetch(form.action, {
@@ -87,97 +99,70 @@ class TaskManager {
             const result = await response.json();
 
             if (result.success) {
-                this.addTaskToDOM(result.task_id, result.quadrant_id, formData);
+                // Очищаем форму
                 form.reset();
-                this.toggleTaskForm(false);
+                this.clearErrors();
+
+                // Показываем уведомление
                 this.showNotification('Задача создана успешно!', 'success');
+
+                // Перезагружаем страницу
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+
             } else {
-                this.showFormErrors(form, result.errors);
+                // Показываем ошибки
+                this.showFormErrors(result.errors);
             }
+
         } catch (error) {
-            console.error('Ошибка создания задачи:', error);
-            this.showNotification('Ошибка создания задачи', 'error');
+            console.error('Error creating task:', error);
+            this.showNotification('Ошибка соединения с сервером', 'error');
+        } finally {
+            createBtn.textContent = originalText;
+            createBtn.disabled = false;
         }
-    }
-
-    addTaskToDOM(taskId, quadrantId, formData) {
-        const quadrantContainer = document.getElementById(`quadrant-${quadrantId}`);
-        const taskCard = this.createTaskCard(taskId, formData);
-
-        quadrantContainer.querySelector('.empty-state')?.remove();
-        quadrantContainer.appendChild(taskCard);
-    }
-
-    createTaskCard(taskId, formData) {
-        const taskCard = document.createElement('div');
-        taskCard.className = 'task-card';
-        taskCard.dataset.taskId = taskId;
-        taskCard.draggable = true;
-
-        taskCard.innerHTML = `
-            <div class="task-header">
-                <h4 class="task-title">${formData.get('title')}</h4>
-                <div class="task-actions">
-                    <button class="btn-edit" data-task-id="${taskId}">✏️</button>
-                    <button class="btn-delete" data-task-id="${taskId}">🗑️</button>
-                    <button class="btn-complete" data-task-id="${taskId}">✅</button>
-                </div>
-            </div>
-            ${formData.get('description') ? `<p class="task-description">${formData.get('description')}</p>` : ''}
-            <div class="task-meta">
-                <span class="task-priority">Приоритет: ${formData.get('priority')}</span>
-                <span class="task-pomodoros">🍅 ${formData.get('estimated_pomodoros')}</span>
-                ${formData.get('due_date') ? `<span class="task-due-date">📅 ${new Date(formData.get('due_date')).toLocaleDateString()}</span>` : ''}
-            </div>
-        `;
-
-        return taskCard;
     }
 
     async handleEditTask(taskId) {
         try {
-            // Получаем данные задачи (в реальном приложении нужно сделать API endpoint)
             const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-            const taskData = this.extractTaskData(taskElement);
+            if (!taskElement) {
+                throw new Error('Задача не найдена');
+            }
 
-            this.populateEditForm(taskId, taskData);
+            const title = taskElement.querySelector('.task-title').textContent;
+            const description = taskElement.querySelector('.task-description')?.textContent || '';
+
+            document.getElementById('edit-task-id').value = taskId;
+            document.getElementById('edit-task-title').value = title;
+            document.getElementById('edit-task-description').value = description;
+
             this.openModal();
+
         } catch (error) {
-            console.error('Ошибка редактирования задачи:', error);
-            this.showNotification('Ошибка загрузки данных задачи', 'error');
+            console.error('Error loading task for editing:', error);
+            this.showNotification('Ошибка загрузки задачи', 'error');
         }
-    }
-
-    extractTaskData(taskElement) {
-        return {
-            title: taskElement.querySelector('.task-title').textContent,
-            description: taskElement.querySelector('.task-description')?.textContent || '',
-            quadrant: taskElement.closest('.tasks-container').id.replace('quadrant-', ''),
-            priority: taskElement.querySelector('.task-priority').textContent.replace('Приоритет: ', ''),
-            pomodoros: taskElement.querySelector('.task-pomodoros').textContent.replace('🍅 ', '')
-        };
-    }
-
-    populateEditForm(taskId, taskData) {
-        document.getElementById('edit-task-id').value = taskId;
-        document.getElementById('edit-task-title').value = taskData.title;
-        document.getElementById('edit-task-description').value = taskData.description;
-        document.getElementById('edit-task-quadrant').value = taskData.quadrant;
-        document.getElementById('edit-task-priority').value = taskData.priority;
-        document.getElementById('edit-task-pomodoros').value = taskData.pomodoros;
     }
 
     async handleUpdateTask(e) {
         e.preventDefault();
 
         const taskId = document.getElementById('edit-task-id').value;
-        const formData = new URLSearchParams({
-            'title': document.getElementById('edit-task-title').value,
-            'description': document.getElementById('edit-task-description').value,
-            'quadrant': document.getElementById('edit-task-quadrant').value,
-            'priority': document.getElementById('edit-task-priority').value,
-            'estimated_pomodoros': document.getElementById('edit-task-pomodoros').value
-        });
+        const title = document.getElementById('edit-task-title').value.trim();
+        const description = document.getElementById('edit-task-description').value.trim();
+        const saveBtn = document.getElementById('save-task-btn');
+
+        if (!title) {
+            this.showError('edit-title-error', 'Введите название задачи');
+            return;
+        }
+
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = 'Сохранение...';
+        saveBtn.disabled = true;
 
         try {
             const response = await fetch(`/tasks/task/${taskId}/update/`, {
@@ -186,32 +171,52 @@ class TaskManager {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-CSRFToken': this.getCSRFToken()
                 },
-                body: formData
+                body: new URLSearchParams({
+                    'title': title,
+                    'description': description
+                })
             });
 
             const result = await response.json();
 
             if (result.success) {
-                this.updateTaskInDOM(taskId);
+                const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                if (taskElement) {
+                    taskElement.querySelector('.task-title').textContent = title;
+
+                    const descElement = taskElement.querySelector('.task-description');
+                    if (description) {
+                        if (descElement) {
+                            descElement.textContent = description;
+                        } else {
+                            const newDesc = document.createElement('p');
+                            newDesc.className = 'task-description';
+                            newDesc.textContent = description;
+                            taskElement.appendChild(newDesc);
+                        }
+                    } else if (descElement) {
+                        descElement.remove();
+                    }
+                }
+
                 this.closeModal();
-                this.showNotification('Задача обновлена успешно!', 'success');
+                this.showNotification('Задача обновлена', 'success');
+
             } else {
                 this.showNotification('Ошибка обновления задачи', 'error');
             }
+
         } catch (error) {
-            console.error('Ошибка обновления задачи:', error);
+            console.error('Error updating task:', error);
             this.showNotification('Ошибка обновления задачи', 'error');
+        } finally {
+            saveBtn.textContent = originalText;
+            saveBtn.disabled = false;
         }
     }
 
-    updateTaskInDOM(taskId) {
-        // В реальном приложении нужно обновить данные в DOM
-        // Для простоты перезагружаем страницу
-        location.reload();
-    }
-
     async handleDeleteTask(taskId) {
-        if (!confirm('Вы уверены, что хотите удалить эту задачу?')) {
+        if (!confirm('Удалить эту задачу?')) {
             return;
         }
 
@@ -226,98 +231,140 @@ class TaskManager {
             const result = await response.json();
 
             if (result.success) {
-                document.querySelector(`[data-task-id="${taskId}"]`).remove();
-                this.checkEmptyQuadrants();
+                const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                if (taskElement) {
+                    taskElement.remove();
+                }
+
                 this.showNotification('Задача удалена', 'success');
             } else {
-                throw new Error('Ошибка удаления задачи');
+                throw new Error(result.error || 'Ошибка удаления задачи');
             }
+
         } catch (error) {
-            console.error('Ошибка удаления задачи:', error);
-            this.showNotification('Ошибка удаления задачи', 'error');
+            console.error('Error deleting task:', error);
+            this.showNotification(error.message, 'error');
         }
     }
 
-    async handleCompleteTask(taskId) {
+    // Drag-and-drop методы (простая версия)
+    handleDragStart(e) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+        e.dataTransfer.effectAllowed = 'move';
+    }
+
+    handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    async handleDrop(e) {
+        e.preventDefault();
+
+        const taskId = e.dataTransfer.getData('text/plain');
+        const draggedTask = document.querySelector(`[data-task-id="${taskId}"]`);
+        const targetContainer = e.target.closest('.tasks-container') ||
+                               e.target.closest('#tasks-list');
+
+        if (!targetContainer || !draggedTask) return;
+
+        let quadrantId = 0;
+        if (targetContainer.classList.contains('tasks-container')) {
+            quadrantId = targetContainer.dataset.quadrantId;
+        }
+
+        const tasksInTarget = targetContainer.querySelectorAll('.task-card');
+        const newOrder = tasksInTarget.length;
+
         try {
-            const response = await fetch(`/tasks/task/${taskId}/complete/`, {
+            const response = await fetch('/tasks/tasks/reorder/', {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'X-CSRFToken': this.getCSRFToken()
-                }
+                },
+                body: JSON.stringify({
+                    task_id: parseInt(taskId),
+                    new_quadrant_id: parseInt(quadrantId),
+                    new_order: newOrder
+                })
             });
 
             const result = await response.json();
 
             if (result.success) {
-                document.querySelector(`[data-task-id="${taskId}"]`).remove();
-                this.checkEmptyQuadrants();
-                this.showNotification('Задача выполнена! 🎉', 'success');
+                targetContainer.appendChild(draggedTask);
+                this.showNotification('Задача перемещена', 'success');
             } else {
-                throw new Error('Ошибка выполнения задачи');
+                throw new Error(result.error || 'Ошибка перемещения задачи');
             }
+
         } catch (error) {
-            console.error('Ошибка выполнения задачи:', error);
-            this.showNotification('Ошибка выполнения задачи', 'error');
+            console.error('Error moving task:', error);
+            this.showNotification(error.message, 'error');
         }
     }
 
-    checkEmptyQuadrants() {
-        document.querySelectorAll('.tasks-container').forEach(container => {
-            if (container.children.length === 0 ||
-                (container.children.length === 1 && container.querySelector('.empty-state'))) {
-                this.showEmptyState(container);
-            }
-        });
+    handleDragEnd(e) {
+        e.target.classList.remove('dragging');
     }
 
-    showEmptyState(container) {
-        if (!container.querySelector('.empty-state')) {
-            const emptyState = document.createElement('div');
-            emptyState.className = 'empty-state';
-            emptyState.innerHTML = '<p>Перетащите сюда задачи или создайте новые</p>';
-            container.appendChild(emptyState);
-        }
-    }
-
+    // Модальное окно
     openModal() {
         document.getElementById('edit-task-modal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
     }
 
     closeModal() {
         document.getElementById('edit-task-modal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.getElementById('edit-task-form').reset();
+        this.clearEditErrors();
     }
 
-    showFormErrors(form, errors) {
-        // Очищаем предыдущие ошибки
-        form.querySelectorAll('.error-message').forEach(el => el.remove());
-        form.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
+    clearEditErrors() {
+        const errorElements = document.querySelectorAll('#edit-task-form .error-message');
+        errorElements.forEach(el => el.textContent = '');
+    }
 
-        // Показываем новые ошибки
-        Object.keys(errors).forEach(fieldName => {
-            const field = form.querySelector(`[name="${fieldName}"]`);
-            if (field) {
-                field.classList.add('error');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error-message';
-                errorDiv.style.cssText = 'color: #dc3545; font-size: 0.8rem; margin-top: 0.25rem;';
-                errorDiv.textContent = errors[fieldName][0];
-                field.parentNode.appendChild(errorDiv);
-            }
-        });
+    showFormErrors(errors) {
+        this.clearErrors();
+
+        if (errors.title) {
+            this.showError('title-error', errors.title[0]);
+        }
+
+        if (errors.__all__) {
+            this.showNotification(errors.__all__[0], 'error');
+        }
+    }
+
+    showError(elementId, message) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = message;
+            element.style.color = '#dc3545';
+            element.style.fontSize = '0.875rem';
+            element.style.marginTop = '0.25rem';
+        }
+    }
+
+    clearErrors() {
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(el => el.textContent = '');
     }
 
     showNotification(message, type = 'info') {
-        // Используем ту же функцию уведомлений, что и в dragdrop.js
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
+        notification.className = 'notification';
         notification.textContent = message;
         notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
             padding: 1rem 1.5rem;
-            background: ${type === 'success' ? '#4ECDC4' : type === 'error' ? '#FF6B6B' : '#667eea'};
+            background: ${type === 'success' ? '#4ECDC4' : '#FF6B6B'};
             color: white;
             border-radius: 5px;
             z-index: 10000;
@@ -332,11 +379,12 @@ class TaskManager {
     }
 
     getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfToken ? csrfToken.value : '';
     }
 }
 
-// Инициализация при загрузке страницы
+// Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     new TaskManager();
 });

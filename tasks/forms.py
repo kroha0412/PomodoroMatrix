@@ -4,11 +4,11 @@ from .models import Task
 
 
 class TaskForm(forms.ModelForm):
-    """Форма для создания и редактирования задач"""
+    """Форма для создания задач (упрощенная - только для 4-го модуля)"""
 
     class Meta:
         model = Task
-        fields = ['title', 'description', 'quadrant', 'priority', 'due_date', 'estimated_pomodoros']
+        fields = ['title', 'description']  # ТОЛЬКО эти поля для создания
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -19,31 +19,10 @@ class TaskForm(forms.ModelForm):
                 'placeholder': 'Описание задачи (необязательно)',
                 'rows': 3
             }),
-            'quadrant': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'priority': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': 1,
-                'max': 10
-            }),
-            'due_date': forms.DateTimeInput(attrs={
-                'class': 'form-control',
-                'type': 'datetime-local'
-            }),
-            'estimated_pomodoros': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': 1,
-                'max': 20
-            }),
         }
         labels = {
             'title': 'Название задачи',
             'description': 'Описание',
-            'quadrant': 'Квадрант',
-            'priority': 'Приоритет (1-10)',
-            'due_date': 'Срок выполнения',
-            'estimated_pomodoros': 'Планируемое количество Pomodoro'
         }
 
 
