@@ -1,6 +1,14 @@
 // pomodoro/static/pomodoro/js/timer.js
+// Основной файл для работы Pomodoro таймера
+
 class PomodoroTimer {
     constructor() {
+        // Проверяем что данные загружены
+        if (!settingsData) {
+            console.error('Settings data not loaded!');
+            return;
+        }
+
         this.workDuration = parseInt(settingsData.workDuration) * 60; // в секунды
         this.shortBreak = parseInt(settingsData.shortBreak) * 60;
         this.longBreak = parseInt(settingsData.longBreak) * 60;
@@ -18,16 +26,32 @@ class PomodoroTimer {
 
     init() {
         this.updateDisplay();
-        this.loadTodayCount();
         this.setupEventListeners();
+        console.log('PomodoroTimer initialized');
     }
 
     setupEventListeners() {
-        // Обновление настроек
-        document.getElementById('timer-settings-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveSettings();
-        });
+        // Обработчики для кнопок таймера
+        const startBtn = document.getElementById('start-timer');
+        const pauseBtn = document.getElementById('pause-timer');
+        const stopBtn = document.getElementById('stop-timer');
+        const skipBtn = document.getElementById('skip-timer');
+
+        if (startBtn) {
+            startBtn.addEventListener('click', () => this.startTimer());
+        }
+
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', () => this.pauseTimer());
+        }
+
+        if (stopBtn) {
+            stopBtn.addEventListener('click', () => this.stopTimer());
+        }
+
+        if (skipBtn) {
+            skipBtn.addEventListener('click', () => this.skipPhase());
+        }
     }
 
     updateDisplay() {
@@ -35,18 +59,48 @@ class PomodoroTimer {
         const seconds = this.timeLeft % 60;
         const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-        document.getElementById('timer-display').textContent = display;
-        document.getElementById('timer-phase').textContent = this.getPhaseText();
-        document.getElementById('cycle-count').textContent = this.completedCycles + 1;
-        document.getElementById('total-cycles').textContent = this.cyclesBeforeLongBreak;
+        const timerDisplay = document.getElementById('timer-display');
+        const timerPhase = document.getElementById('timer-phase');
+        const cycleCounter = document.getElementById('cycle-counter');
 
-        // Обновляем прогресс-бар
+        if (timerDisplay) {
+            timerDisplay.textContent = display;
+        }
+
+        if (timerPhase) {
+            timerPhase.textContent = this.getPhaseText();
+        }
+
+        // Обновляем счетчик циклов
+        if (cycleCounter) {
+            cycleCounter.textContent = `${this.completedCycles + 1}/${this.cyclesBeforeLongBreak}`;
+        }
+
+        // Обновляем прогресс кругового индикатора
         const totalTime = this.getCurrentPhaseDuration();
         const progress = ((totalTime - this.timeLeft) / totalTime) * 100;
-        document.getElementById('phase-progress').style.width = `${progress}%`;
+
+        const timerCircle = document.getElementById('timer-circle');
+        if (timerCircle) {
+            timerCircle.style.setProperty('--progress', progress);
+        }
+
+        // Обновляем точки циклов
+        for (let i = 1; i <= this.cyclesBeforeLongBreak; i++) {
+            const cycleDot = document.getElementById(`cycle-dot-${i}`);
+            if (cycleDot) {
+                cycleDot.classList.remove('active');
+                if (i <= this.completedCycles + 1) {
+                    cycleDot.classList.add('active');
+                }
+            }
+        }
 
         // Обновляем цвета в зависимости от фазы
         this.updateTimerColors();
+
+        // Обновляем состояние кнопок
+        this.updateButtonStates();
     }
 
     getPhaseText() {
@@ -59,26 +113,42 @@ class PomodoroTimer {
     }
 
     updateTimerColors() {
-        const timerCard = document.querySelector('.timer-card');
-        const timerTime = document.getElementById('timer-display');
+        const timerCircle = document.getElementById('timer-circle');
+        if (!timerCircle) return;
 
-        timerCard.classList.remove('work-mode', 'break-mode', 'long-break-mode');
-        timerTime.classList.remove('work-color', 'break-color', 'long-break-color');
+        // Убираем все классы цветов
+        timerCircle.classList.remove('work-mode', 'break-mode', 'long-break-mode');
 
+        let gradientColor;
         switch(this.currentPhase) {
             case 'work':
-                timerCard.classList.add('work-mode');
-                timerTime.classList.add('work-color');
+                timerCircle.classList.add('work-mode');
+                gradientColor = '#4ECDC4';
                 break;
             case 'short_break':
-                timerCard.classList.add('break-mode');
-                timerTime.classList.add('break-color');
+                timerCircle.classList.add('break-mode');
+                gradientColor = '#FFC107';
                 break;
             case 'long_break':
-                timerCard.classList.add('long-break-mode');
-                timerTime.classList.add('long-break-color');
+                timerCircle.classList.add('long-break-mode');
+                gradientColor = '#17a2b8';
                 break;
+            default:
+                gradientColor = '#4ECDC4';
         }
+
+        const progress = this.getProgressPercentage();
+        timerCircle.style.background = `conic-gradient(
+            ${gradientColor} 0deg,
+            ${gradientColor} calc(${progress} * 3.6deg),
+            #f0f0f0 calc(${progress} * 3.6deg),
+            #f0f0f0 360deg
+        )`;
+    }
+
+    getProgressPercentage() {
+        const totalTime = this.getCurrentPhaseDuration();
+        return ((totalTime - this.timeLeft) / totalTime) * 100;
     }
 
     getCurrentPhaseDuration() {
@@ -167,9 +237,6 @@ class PomodoroTimer {
         this.timeLeft = this.getCurrentPhaseDuration();
         this.updateDisplay();
         this.updateButtonStates();
-
-        // Автозапуск следующей фазы (опционально)
-        // setTimeout(() => this.startTimer(), 1000);
     }
 
     updateButtonStates() {
@@ -177,19 +244,37 @@ class PomodoroTimer {
         const pauseBtn = document.getElementById('pause-timer');
         const skipBtn = document.getElementById('skip-timer');
 
-        if (this.isRunning) {
-            startBtn.disabled = true;
-            pauseBtn.disabled = false;
-            skipBtn.disabled = false;
-        } else {
-            startBtn.disabled = false;
-            pauseBtn.disabled = true;
-            skipBtn.disabled = this.timeLeft === this.getCurrentPhaseDuration();
+        if (startBtn && pauseBtn && skipBtn) {
+            if (this.isRunning) {
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                skipBtn.disabled = false;
+            } else {
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                skipBtn.disabled = this.timeLeft === this.getCurrentPhaseDuration();
+            }
         }
     }
 
     async startSession() {
         try {
+            // Получаем CSRF токен
+            const csrfToken = getCSRFToken();
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
+
+            // Получаем ID задачи
+            let taskId = null;
+            if (taskData && taskData.id) {
+                taskId = taskData.id;
+            }
+
+            if (!taskId) {
+                throw new Error('Task ID not found');
+            }
+
             const response = await fetch('/pomodoro/api/start_session/', {
                 method: 'POST',
                 headers: {
@@ -197,7 +282,7 @@ class PomodoroTimer {
                     'X-CSRFToken': csrfToken
                 },
                 body: JSON.stringify({
-                    task_id: taskData.id,
+                    task_id: taskId,
                     session_type: this.currentPhase
                 })
             });
@@ -207,16 +292,21 @@ class PomodoroTimer {
             if (data.success) {
                 this.currentSessionId = data.session_id;
                 this.showNotification(data.message);
-                this.updateTodayCount(1);
             }
         } catch (error) {
             console.error('Error starting session:', error);
+            this.showNotification('Ошибка запуска сессии', 'error');
         }
     }
 
     async endSession(status = 'completed') {
         try {
             if (!this.currentSessionId) return;
+
+            const csrfToken = getCSRFToken();
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
 
             const response = await fetch('/pomodoro/api/end_session/', {
                 method: 'POST',
@@ -246,111 +336,53 @@ class PomodoroTimer {
         }
     }
 
-    async saveSettings() {
-        try {
-            const formData = new FormData(document.getElementById('timer-settings-form'));
-
-            const response = await fetch('/users/profile/', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                this.showNotification('Настройки сохранены!');
-
-                // Обновляем таймер с новыми настройками
-                this.workDuration = parseInt(document.getElementById('pomodoro-duration').value) * 60;
-                this.shortBreak = parseInt(document.getElementById('short-break-duration').value) * 60;
-                this.longBreak = parseInt(document.getElementById('long-break-duration').value) * 60;
-                this.cyclesBeforeLongBreak = parseInt(document.getElementById('pomodoros-before-long-break').value);
-
-                this.timeLeft = this.workDuration;
-                this.updateDisplay();
-            }
-        } catch (error) {
-            console.error('Error saving settings:', error);
-        }
-    }
-
     updateTaskProgress(progress) {
         // Обновляем прогресс-бар задачи
-        const percentage = (progress.completed / progress.total) * 100;
-        document.querySelector('.progress-fill').style.width = `${percentage}%`;
-        document.querySelector('.progress-text').textContent =
-            `${progress.completed} из ${progress.total} Pomodoro`;
-    }
+        const progressBar = document.getElementById('task-progress-bar');
+        if (progressBar) {
+            const percentage = (progress.completed / progress.total) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
 
-    updateTodayCount(increment = 0) {
-        const countElement = document.getElementById('today-count');
-        let count = parseInt(countElement.textContent);
-
-        if (increment > 0) {
-            count += increment;
-            countElement.textContent = count;
+        // Обновляем текст прогресса
+        const progressText = document.getElementById('progress-text');
+        if (progressText) {
+            progressText.innerHTML =
+                `Выполнено <span class="completed">${progress.completed}</span> из
+                 <span class="total">${progress.total}</span> Pomodoro выполнено`;
         }
     }
 
-    loadTodayCount() {
-        // Можно загружать через API если нужно
-    }
-
-    showNotification(message) {
-        const notification = document.getElementById('notification');
-        const messageElement = document.getElementById('notification-message');
-
-        messageElement.textContent = message;
-        notification.classList.remove('hidden');
-
-        // Автоматически скрыть через 3 секунды
-        setTimeout(() => {
-            notification.classList.add('hidden');
-        }, 3000);
+    showNotification(message, type = 'success') {
+        // Используем функцию из task_actions.js если она доступна
+        if (typeof showNotification === 'function') {
+            showNotification(message, type);
+        } else {
+            // Создаем простейшее уведомление
+            console.log(`${type.toUpperCase()}: ${message}`);
+        }
     }
 }
 
-// Глобальные функции для кнопок
-let pomodoroTimer;
-
-function startTimer() {
-    if (!pomodoroTimer) {
-        pomodoroTimer = new PomodoroTimer();
-    }
-    pomodoroTimer.startTimer();
-}
-
-function pauseTimer() {
-    if (pomodoroTimer) {
-        pomodoroTimer.pauseTimer();
-    }
-}
-
-function stopTimer() {
-    if (pomodoroTimer) {
-        pomodoroTimer.stopTimer();
-    }
-}
-
-function skipPhase() {
-    if (pomodoroTimer) {
-        pomodoroTimer.skipPhase();
-    }
-}
-
-function completeTask() {
-    if (confirm('Завершить эту задачу?')) {
-        // Реализация завершения задачи
-        window.location.href = `/tasks/task/${taskData.id}/complete/`;
-    }
+// Глобальная функция для получения CSRF токена
+function getCSRFToken() {
+    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    return csrfInput ? csrfInput.value : '';
 }
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
-    pomodoroTimer = new PomodoroTimer();
+    console.log('Timer module loaded');
 
-    // Добавляем звуковые уведомления (опционально)
-    try {
-        window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-        console.log('Web Audio API не поддерживается');
+    // Инициализируем таймер только если есть необходимые данные
+    if (typeof settingsData !== 'undefined') {
+        try {
+            window.pomodoroTimer = new PomodoroTimer();
+            console.log('Pomodoro timer initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize Pomodoro timer:', error);
+        }
+    } else {
+        console.warn('Settings data not available, timer not initialized');
     }
 });

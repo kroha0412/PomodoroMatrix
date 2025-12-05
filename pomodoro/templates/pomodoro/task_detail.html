@@ -2,267 +2,172 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Выполнение: {{ task.title }}{% endblock %}
+{% block title %}Выполнение: {{ task.title }} - Pomodoro{% endblock %}
 
 {% block extra_css %}
-<!-- Подключаем CSS для таймера -->
 <link rel="stylesheet" href="{% static 'pomodoro/css/timer.css' %}">
 {% endblock %}
 
 {% block content %}
-<!-- ОБЕРТКА КОНТЕЙНЕРА - ЭТО ВАЖНО! -->
-<div class="container">
-    <div class="pomodoro-container">
-        <div class="pomodoro-layout">
+<div class="pomodoro-page">
+    <!-- Шапка с информацией о задаче -->
+    <div class="pomodoro-header">
+        <div class="container">
+            <div class="task-info-card">
+                <div class="task-main-info">
+                    <h1 class="task-title">{{ task.title }}</h1>
 
-            <!-- ЛЕВАЯ КОЛОНКА: Информация о задаче -->
-            <div class="task-info">
-                <div class="task-header">
-                    <h1>{{ task.title }}</h1>
-                    <div class="task-meta">
+                    <div class="task-meta-tags">
                         {% if task.quadrant %}
-                        <span class="quadrant-badge" style="background-color: {{ task.quadrant.color_code|default:'#999' }};">
+                        <span class="quadrant-tag" style="background-color: {{ task.quadrant.color_code|default:'#4ECDC4' }}">
                             {{ task.quadrant.name }}
                         </span>
                         {% endif %}
-                        <span class="status-badge">{{ task.get_status_display }}</span>
                     </div>
                 </div>
 
-                {% if task.description %}
-                <div class="task-description">
-                    <h3>Описание:</h3>
-                    <p>{{ task.description }}</p>
-                </div>
-                {% endif %}
-
-                <!-- Планирование Pomodoro -->
-                <div class="pomodoro-planning">
-                    <h3>Планирование Pomodoro</h3>
-                    <div class="planning-form">
-                        <div class="form-group">
-                            <label for="estimated-pomodoros">Сколько Pomodoro планируете потратить на эту задачу?</label>
-                            <div class="estimation-control">
-                                <input type="number" id="estimated-pomodoros" name="estimated_pomodoros"
-                                       value="{{ task.estimated_pomodoros }}" min="1" max="20" class="form-control estimation-input">
-                                <span class="estimation-label">Pomodoro</span>
-                            </div>
-
-                            <div class="quick-buttons">
-                                <div class="quick-buttons-title">Быстрый выбор:</div>
-                                <div class="quick-buttons-grid">
-                                    <button type="button" class="btn-quick" data-value="1">1</button>
-                                    <button type="button" class="btn-quick" data-value="2">2</button>
-                                    <button type="button" class="btn-quick" data-value="3">3</button>
-                                    <button type="button" class="btn-quick" data-value="5">5</button>
-                                    <button type="button" class="btn-quick" data-value="8">8</button>
-                                    <button type="button" class="btn-quick" data-value="13">13</button>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" id="save-estimation-btn" class="btn btn-primary">Сохранить план</button>
-                    </div>
-                </div>
-
-                <div class="task-progress">
-                    <h3>Прогресс выполнения:</h3>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: {% if task.progress_percentage %}{{ task.progress_percentage }}{% else %}0{% endif %}%"></div>
-                    </div>
+                <div class="task-progress-summary">
                     <div class="progress-text">
-                        <span class="completed">{{ task.completed_pomodoros }}</span> из
-                        <span class="total">{{ task.estimated_pomodoros }}</span> Pomodoro выполнено
+                        <span class="completed">{{ task.completed_pomodoros }}</span> /
+                        <span class="total">{{ task.estimated_pomodoros }}</span> Pomodoro
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="pomodoro-main-layout">
+            <!-- Левая колонка: Таймер -->
+            <div class="timer-column">
+                <div class="timer-card">
+                    <!-- Круглый индикатор таймера -->
+                    <div class="timer-circle" id="timer-circle">
+                        <div class="timer-display">
+                            <div class="timer-time" id="timer-display">25:00</div>
+                            <div class="timer-phase" id="timer-phase">Готов к работе</div>
+                        </div>
+                    </div>
+
+                    <!-- Управление таймером -->
+                    <div class="timer-controls">
+                        <button class="timer-btn btn-start" id="start-timer">
+                            <span class="btn-icon">▶</span>
+                            <span class="btn-text">Начать Pomodoro</span>
+                        </button>
+
+                        <div class="secondary-controls">
+                            <button class="timer-btn btn-pause" id="pause-timer" disabled>
+                                <span class="btn-icon">⏸</span>
+                                <span class="btn-text">Пауза</span>
+                            </button>
+                            <button class="timer-btn btn-stop" id="stop-timer">
+                                <span class="btn-icon">⏹</span>
+                                <span class="btn-text">Стоп</span>
+                            </button>
+                            <button class="timer-btn btn-skip" id="skip-timer" disabled>
+                                <span class="btn-icon">⏭</span>
+                                <span class="btn-text">Пропустить</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Прогресс циклов -->
+                    <div class="cycles-progress">
+                        <div class="progress-header">
+                            <h3>Цикл</h3>
+                            <span class="cycle-counter" id="cycle-counter">1/4</span>
+                        </div>
+                        <div class="cycles-visual">
+                            {% for i in "1234" %}
+                            <div class="cycle-dot {% if forloop.counter == 1 %}active{% endif %}"
+                                 id="cycle-dot-{{ forloop.counter }}"></div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: Pomodoro таймер -->
-            <div class="timer-section">
-                <div class="timer-card">
-                    <div class="timer-display">
-                        <div class="timer-time" id="timer-display">25:00</div>
-                        <div class="timer-phase" id="timer-phase">Готов к работе</div>
-                    </div>
-
-                    <div class="timer-controls">
-                        <button class="btn-timer btn-start" id="start-timer">
-                            ▶️ Начать Pomodoro
-                        </button>
-                        <button class="btn-timer btn-pause" id="pause-timer" disabled>
-                            ⏸️ Пауза
-                        </button>
-                        <button class="btn-timer btn-stop" id="stop-timer">
-                            ⏹️ Завершить
-                        </button>
-                        <button class="btn-timer btn-skip" id="skip-timer" disabled>
-                            ⏭️ Пропустить фазу
-                        </button>
-                    </div>
-
-                    <div class="timer-stats">
-                        <div class="cycle-counter">
-                            <span>Сегодня выполнено:</span>
-                            <span id="today-count" class="highlight">{{ today_sessions }}</span>
-                            <span>Pomodoro</span>
-                        </div>
-                        <div class="task-progress-counter">
-                            <span>По этой задаче:</span>
-                            <span id="task-pomodoros" class="highlight">{{ task.completed_pomodoros }}</span>
-                            <span>из</span>
-                            <span id="task-total" class="highlight">{{ task.estimated_pomodoros }}</span>
-                            <span>Pomodoro</span>
-                        </div>
-                    </div>
-
-                    <!-- Прогресс-бары -->
-                    <div class="progress-container">
-                        <div class="phase-progress">
-                            <div class="progress-label">
-                                <span id="current-phase-label">Работа</span>
-                                <span id="time-left">25:00</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="phase-progress" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <div class="cycle-progress">
-                            <div class="progress-label">
-                                <span>Прогресс задачи</span>
-                                <span id="cycles-count">{{ task.completed_pomodoros }} из {{ task.estimated_pomodoros }}</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="cycle-progress"
-                                     style="width: {% if task.progress_percentage %}{{ task.progress_percentage }}{% else %}0{% endif %}%"></div>
-                            </div>
-                        </div>
+            <!-- Правая колонка: Детали задачи -->
+            <div class="task-details-column">
+                <!-- Описание задачи -->
+                {% if task.description %}
+                <div class="detail-card">
+                    <h3 class="detail-title">
+                        <span class="icon">📝</span>
+                        Описание задачи
+                    </h3>
+                    <div class="detail-content">
+                        <p>{{ task.description }}</p>
                     </div>
                 </div>
+                {% endif %}
 
-                <!-- История сессий -->
-                <div class="sessions-history">
-                    <h3>Последние сессии:</h3>
-                    {% if recent_sessions %}
-                    <div class="sessions-list">
-                        {% for session in recent_sessions %}
-                        <div class="session-item">
-                            <span class="session-type {{ session.session_type }}">
-                                {{ session.get_session_type_display }}
-                            </span>
-                            <span class="session-time">
-                                {{ session.start_time|date:"H:i" }}
-                                {% if session.end_time %}
-                                - {{ session.end_time|date:"H:i" }}
-                                {% endif %}
-                            </span>
+                <!-- Прогресс выполнения -->
+                <div class="detail-card">
+                    <h3 class="detail-title">
+                        <span class="icon">📊</span>
+                        Прогресс выполнения
+                    </h3>
+                    <div class="detail-content">
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="task-progress-bar"
+                                     style="width: {% if task.estimated_pomodoros > 0 %}{{ task.completed_pomodoros|floatformat:0 }}{% else %}0{% endif %}%">
+                                </div>
+                            </div>
+                            <div class="progress-text" id="progress-text">
+                                Выполнено <span class="completed">{{ task.completed_pomodoros }}</span> из
+                                <span class="total">{{ task.estimated_pomodoros }}</span> Pomodoro
+                            </div>
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="empty-sessions">Сессии еще не начаты. Начните первый Pomodoro!</p>
-                    {% endif %}
-                </div>
 
-                <!-- Навигация -->
-                <div class="navigation-actions">
-                    <a href="{% url 'tasks:matrix' %}" class="btn btn-outline">← Вернуться к матрице</a>
+                        <!-- Оценка Pomodoro -->
+                        <div class="pomodoro-estimation">
+                            <label for="estimated-pomodoros">Оцените задачу в Pomodoro:</label>
+                            <div class="estimation-control">
+                                <input type="number" id="estimated-pomodoros"
+                                       value="{{ task.estimated_pomodoros }}"
+                                       min="1" max="20" class="estimation-input">
+                                <span class="estimation-label">Pomodoro</span>
+                                <button class="btn-save-estimation" id="save-estimation-btn">Сохранить</button>
+                            </div>
+                        </div>
+
+                        <!-- Действия под прогрессом -->
+                        <div class="actions-container">
+                            <div class="action-buttons">
+                                <a href="{% url 'tasks:matrix' %}" class="action-btn btn-back">
+                                    <span class="btn-icon">←</span>
+                                    Вернуться к матрице
+                                </a>
+                                <button class="action-btn btn-complete" id="complete-task-btn">
+                                    <span class="btn-icon">✅</span>
+                                    Завершить задачу
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Уведомления -->
+<!-- Форма для завершения задачи (скрытая) -->
+<form id="complete-task-form" method="POST" action="{% url 'pomodoro:complete_task' task.id %}" style="display: none;">
+    {% csrf_token %}
+</form>
+
+<!-- Уведомление -->
 <div id="notification" class="notification hidden">
     <div class="notification-content">
         <span id="notification-message"></span>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'pomodoro/js/timer.js' %}"></script>
-<script>
-    // Передаем данные из Django в JavaScript
-    const taskData = {
-        id: {{ task.id }},
-        title: "{{ task.title|escapejs }}",
-        completedPomodoros: {{ task.completed_pomodoros }},
-        totalPomodoros: {{ task.estimated_pomodoros }},
-        progressPercentage: {% if task.progress_percentage %}{{ task.progress_percentage }}{% else %}0{% endif %}
-    };
-
-    const settingsData = {
-        workDuration: {{ settings.pomodoro_duration }},
-        shortBreak: {{ settings.short_break_duration }},
-        longBreak: {{ settings.long_break_duration }},
-        cyclesBeforeLongBreak: {{ settings.pomodoros_before_long_break }}
-    };
-
-    // CSRF токен для AJAX запросов
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-    // Обработка планирования Pomodoro
-    document.addEventListener('DOMContentLoaded', function() {
-        const estimatedInput = document.getElementById('estimated-pomodoros');
-        const saveBtn = document.getElementById('save-estimation-btn');
-        const quickButtons = document.querySelectorAll('.btn-quick');
-        const taskTotalElement = document.getElementById('task-total');
-
-        // Быстрые кнопки
-        quickButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                estimatedInput.value = this.dataset.value;
-            });
-        });
-
-        // Сохранение оценки
-        saveBtn.addEventListener('click', function() {
-            const estimatedPomodoros = parseInt(estimatedInput.value);
-
-            if (!estimatedPomodoros || estimatedPomodoros < 1) {
-                alert('Введите корректное число Pomodoro (минимум 1)');
-                return;
-            }
-
-            // Отправляем AJAX запрос
-            fetch(`/tasks/task/${taskData.id}/update/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': csrfToken
-                },
-                body: new URLSearchParams({
-                    'title': taskData.title,  // Нужно сохранить текущее название
-                    'description': '',  // Пустое описание
-                    'estimated_pomodoros': estimatedPomodoros
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Обновляем отображение
-                    taskTotalElement.textContent = estimatedPomodoros;
-
-                    // Показываем уведомление
-                    const notification = document.getElementById('notification');
-                    const message = document.getElementById('notification-message');
-                    message.textContent = 'План сохранен!';
-                    notification.classList.remove('hidden');
-
-                    setTimeout(() => {
-                        notification.classList.add('hidden');
-                    }, 3000);
-                } else {
-                    alert('Ошибка сохранения: ' + (data.error || 'Неизвестная ошибка'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Ошибка соединения с сервером');
-            });
-        });
-    });
-</script>
+<script src="{% static 'pomodoro/js/task_actions.js' %}"></script>
 {% endblock %}

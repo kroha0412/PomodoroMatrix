@@ -1,0 +1,559 @@
+/* pomodoro/static/pomodoro/css/timer.css */
+
+/* Основные стили страницы */
+.pomodoro-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding-bottom: 3rem;
+}
+
+.pomodoro-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+}
+
+/* Карточка информации о задаче */
+.task-info-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.task-main-info {
+    flex: 1;
+}
+
+.task-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: white;
+}
+
+.task-meta-tags {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.quadrant-tag {
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    background-color: #4ECDC4;
+}
+
+.task-progress-summary {
+    text-align: right;
+}
+
+.progress-text {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.progress-text .completed {
+    color: #4ECDC4;
+    font-weight: 700;
+}
+
+.progress-text .total {
+    color: white;
+    opacity: 0.9;
+}
+
+/* Основной макет */
+.pomodoro-main-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 992px) {
+    .pomodoro-main-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Колонка с таймером */
+.timer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Карточка таймера */
+.timer-card {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Круглый индикатор таймера */
+.timer-circle {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    margin: 0 auto 3rem;
+    position: relative;
+    background: conic-gradient(
+        #4ECDC4 0deg,
+        #4ECDC4 calc(var(--progress, 0) * 3.6deg),
+        #f0f0f0 calc(var(--progress, 0) * 3.6deg),
+        #f0f0f0 360deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-circle:before {
+    content: '';
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    background: white;
+    border-radius: 50%;
+}
+
+.timer-display {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.timer-time {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #333;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 0.5rem;
+}
+
+.timer-phase {
+    font-size: 1.3rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Кнопки управления таймером */
+.timer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.timer-btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-width: 200px;
+    justify-content: center;
+}
+
+.btn-start {
+    background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+    color: white;
+    font-size: 1.2rem;
+    padding: 1.2rem 2.5rem;
+}
+
+.btn-start:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(78, 205, 196, 0.4);
+}
+
+.btn-pause {
+    background: #FFC107;
+    color: #333;
+}
+
+.btn-pause:hover {
+    background: #e0a800;
+}
+
+.btn-stop {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-stop:hover {
+    background: #c82333;
+}
+
+.btn-skip {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-skip:hover {
+    background: #5a6268;
+}
+
+.timer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.timer-btn:disabled:hover {
+    box-shadow: none !important;
+}
+
+.secondary-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Прогресс циклов */
+.cycles-progress {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.progress-header h3 {
+    color: #333;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.cycle-counter {
+    background: #667eea;
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.cycles-visual {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.cycle-dot {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.cycle-dot.active {
+    background: #4ECDC4;
+    transform: scale(1.2);
+    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+}
+
+/* Колонка с деталями задачи */
+.task-details-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Карточки деталей */
+.detail-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.detail-title {
+    color: #333;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.detail-title .icon {
+    font-size: 1.2rem;
+}
+
+/* Прогресс-бар задачи */
+.progress-container {
+    margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+    height: 12px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ECDC4, #44A08D);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    text-align: center;
+    color: #666;
+    font-weight: 500;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.progress-text .completed {
+    color: #4ECDC4;
+    font-weight: bold;
+}
+
+.progress-text .total {
+    color: #667eea;
+    font-weight: bold;
+}
+
+/* Оценка Pomodoro */
+.pomodoro-estimation {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.pomodoro-estimation label {
+    display: block;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.estimation-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.estimation-input {
+    padding: 0.8rem 1rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100px;
+    text-align: center;
+}
+
+.estimation-input:focus {
+    outline: none;
+    border-color: #4ECDC4;
+}
+
+.estimation-label {
+    color: #666;
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.btn-save-estimation {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-save-estimation:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+}
+
+/* Действия под прогрессом */
+.actions-container {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.action-btn {
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.btn-back {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-back:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+}
+
+.btn-complete {
+    background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+    color: white;
+}
+
+.btn-complete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+}
+
+/* Уведомление */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4ECDC4;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+}
+
+.notification.hidden {
+    display: none;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .task-info-card {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+
+    .task-progress-summary {
+        text-align: center;
+    }
+
+    .timer-circle {
+        width: 220px;
+        height: 220px;
+    }
+
+    .timer-circle:before {
+        width: 180px;
+        height: 180px;
+    }
+
+    .timer-time {
+        font-size: 2.5rem;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+
+    .secondary-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .secondary-controls .timer-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .estimation-control {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+    }
+
+    .estimation-input {
+        width: 100%;
+    }
+
+    .btn-save-estimation {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-btn {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .timer-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        min-width: 160px;
+    }
+
+    .timer-time {
+        font-size: 2rem;
+    }
+
+    .timer-phase {
+        font-size: 1.1rem;
+    }
+
+    .detail-card {
+        padding: 1.5rem;
+    }
+}

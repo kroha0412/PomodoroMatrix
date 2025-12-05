@@ -173,18 +173,35 @@
     gap: 0.5rem;
 }
 
-.task-actions button {
+.task-actions button,
+.task-actions a {
     background: none;
     border: none;
     cursor: pointer;
     font-size: 0.9rem;
     padding: 0.25rem;
     border-radius: 4px;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 
-.task-actions button:hover {
+.task-actions button:hover,
+.task-actions a:hover {
     background-color: #f8f9fa;
+}
+
+/* Стиль для кнопки Pomodoro */
+.btn-pomodoro {
+    color: #dc3545 !important;
+    font-size: 1rem !important;
+}
+
+.btn-pomodoro:hover {
+    background-color: #f8d7da !important;
+    transform: scale(1.1) !important;
 }
 
 .task-description {
@@ -290,31 +307,6 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Адаптивность для мобильных устройств */
-@media (max-width: 768px) {
-    .matrix-layout {
-        flex-direction: column;
-    }
-
-    .tasks-sidebar {
-        flex: none;
-        width: 100%;
-    }
-
-    .eisenhower-matrix {
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(4, 1fr);
-        height: auto;
-        min-height: auto;
-    }
-
-    .task-meta {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-}
-/* Добавить в конец файла matrix.css */
-
 /* Стили для модального окна */
 .modal {
     display: none;
@@ -389,5 +381,33 @@
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .matrix-layout {
+        flex-direction: column;
+    }
+
+    .tasks-sidebar {
+        flex: none;
+        width: 100%;
+    }
+
+    .eisenhower-matrix {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 1fr);
+        height: auto;
+        min-height: auto;
+    }
+
+    .task-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .task-actions {
+        gap: 0.25rem;
     }
 }

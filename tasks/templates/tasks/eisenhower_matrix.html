@@ -58,6 +58,12 @@
                             <div class="task-actions">
                                 <button class="btn-edit" data-task-id="{{ task.id }}">✏️</button>
                                 <button class="btn-delete" data-task-id="{{ task.id }}">🗑️</button>
+                                <!-- НОВАЯ КНОПКА POMODORO -->
+                                <a href="{% url 'pomodoro:task_detail' task.id %}"
+                                   class="btn-pomodoro"
+                                   title="Выполнять с Pomodoro">
+                                    🍅
+                                </a>
                             </div>
                         </div>
                         {% if task.description %}
@@ -92,6 +98,12 @@
                                     <div class="task-actions">
                                         <button class="btn-edit" data-task-id="{{ task.id }}">✏️</button>
                                         <button class="btn-delete" data-task-id="{{ task.id }}">🗑️</button>
+                                        <!-- НОВАЯ КНОПКА POMODORO -->
+                                        <a href="{% url 'pomodoro:task_detail' task.id %}"
+                                           class="btn-pomodoro"
+                                           title="Выполнять с Pomodoro">
+                                            🍅
+                                        </a>
                                     </div>
                                 </div>
                                 {% if task.description %}
@@ -100,7 +112,6 @@
                             </div>
                             {% endif %}
                         {% endfor %}
-
 
                     </div>
                 </div>

@@ -14,4 +14,7 @@ urlpatterns = [
 
     # История сессий
     path('sessions/', views.session_history, name='session_history'),
+
+    # Завершение задачи
+    path('task/<int:task_id>/complete/', views.complete_task, name='complete_task'),
 ]

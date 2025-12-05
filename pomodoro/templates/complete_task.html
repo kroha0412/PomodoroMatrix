@@ -1,0 +1,56 @@
+<!-- pomodoro/templates/pomodoro/complete_task.html -->
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Завершить задачу - {{ task.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="complete-task-container" style="max-width: 600px; margin: 3rem auto;">
+        <div class="card" style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h2 style="color: #333; margin-bottom: 1.5rem; text-align: center;">Завершить задачу</h2>
+
+            <div class="task-info" style="margin-bottom: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="color: #667eea; margin-bottom: 1rem;">{{ task.title }}</h3>
+
+                {% if task.description %}
+                <p style="color: #666; margin-bottom: 1rem;">{{ task.description }}</p>
+                {% endif %}
+
+                <div style="display: flex; gap: 1rem; margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                    <span>Pomodoro: {{ task.completed_pomodoros }}/{{ task.estimated_pomodoros }}</span>
+                    {% if task.quadrant %}
+                    <span style="padding: 0.25rem 0.75rem; background-color: {{ task.quadrant.color_code }}; color: white; border-radius: 20px;">
+                        {{ task.quadrant.name }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="completion_notes" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">
+                        Заметки о выполнении (необязательно):
+                    </label>
+                    <textarea id="completion_notes" name="completion_notes"
+                              style="width: 100%; padding: 0.75rem; border: 2px solid #e1e5e9; border-radius: 6px;"
+                              rows="4" placeholder="Что было сделано? Какие были сложности?"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button type="submit"
+                            style="background-color: #4ECDC4; color: white; padding: 0.75rem 2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                        ✅ Завершить задачу
+                    </button>
+                    <a href="{% url 'pomodoro:task_detail' task.id %}"
+                       style="background-color: #6c757d; color: white; padding: 0.75rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                        Вернуться к таймеру
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

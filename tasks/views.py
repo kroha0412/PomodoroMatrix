@@ -90,15 +90,20 @@ def matrix_view(request):
 @login_required
 @csrf_exempt
 def update_task(request, task_id):
-    """Обновление задачи (редактирование названия и описания)"""
+    """Обновление задачи (редактирование названия, описания и оценки Pomodoro)"""
     if request.method == 'POST':
         try:
+            print(f"Updating task {task_id} for user {request.user}")  # Отладка
+
             # Получаем задачу
             task = Task.objects.get(id=task_id, user=request.user)
 
             # Получаем данные из POST запроса
             title = request.POST.get('title', '').strip()
             description = request.POST.get('description', '').strip()
+            estimated_pomodoros = request.POST.get('estimated_pomodoros', '').strip()
+
+            print(f"Update data: title='{title}', estimated='{estimated_pomodoros}'")  # Отладка
 
             # Валидация
             if not title:
@@ -109,11 +114,19 @@ def update_task(request, task_id):
 
             # Обновляем данные задачи
             task.title = title
-            task.description = description
+
+            if description is not None:
+                task.description = description
+
+            # Обновляем оценку Pomodoro если передана
+            if estimated_pomodoros and estimated_pomodoros.isdigit():
+                task.estimated_pomodoros = int(estimated_pomodoros)
+                print(f"Setting estimated_pomodoros to: {task.estimated_pomodoros}")  # Отладка
+
             task.updated_at = timezone.now()
             task.save()
 
-            print(f"Task updated: {task.id} - {task.title}")  # Для отладки
+            print(f"Task updated successfully: {task.id} - {task.title} - Pomodoros: {task.estimated_pomodoros}")
 
             return JsonResponse({
                 'success': True,
@@ -121,17 +134,22 @@ def update_task(request, task_id):
                 'task': {
                     'id': task.id,
                     'title': task.title,
-                    'description': task.description
+                    'description': task.description,
+                    'estimated_pomodoros': task.estimated_pomodoros,
+                    'completed_pomodoros': task.completed_pomodoros
                 }
             })
 
         except Task.DoesNotExist:
+            print(f"Task {task_id} not found for user {request.user}")  # Отладка
             return JsonResponse({
                 'success': False,
                 'error': 'Задача не найдена'
             })
         except Exception as e:
-            print(f"Error updating task: {e}")  # Для отладки
+            print(f"Error updating task: {e}")  # Отладка
+            import traceback
+            traceback.print_exc()  # Полный traceback
             return JsonResponse({
                 'success': False,
                 'error': f'Ошибка обновления задачи: {str(e)}'
