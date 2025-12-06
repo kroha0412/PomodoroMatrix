@@ -14,22 +14,16 @@
     <div class="pomodoro-header">
         <div class="container">
             <div class="task-info-card">
-                <div class="task-main-info">
+                <!-- Убрали правую часть с счетчиком Pomodoro -->
+                <div class="task-main-info" style="text-align: center; width: 100%;">
                     <h1 class="task-title">{{ task.title }}</h1>
 
-                    <div class="task-meta-tags">
+                    <div class="task-meta-tags" style="justify-content: center;">
                         {% if task.quadrant %}
                         <span class="quadrant-tag" style="background-color: {{ task.quadrant.color_code|default:'#4ECDC4' }}">
                             {{ task.quadrant.name }}
                         </span>
                         {% endif %}
-                    </div>
-                </div>
-
-                <div class="task-progress-summary">
-                    <div class="progress-text">
-                        <span class="completed">{{ task.completed_pomodoros }}</span> /
-                        <span class="total">{{ task.estimated_pomodoros }}</span> Pomodoro
                     </div>
                 </div>
             </div>
@@ -71,8 +65,6 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Убрали блок "Цикл" отсюда -->
                 </div>
             </div>
 
@@ -130,7 +122,7 @@
                                     Вернуться к матрице
                                 </a>
                                 <button class="action-btn btn-complete" id="complete-task-btn">
-                                    <span class="btn-icon">✅</span>
+                                    <span class="btn-icon"></span>
                                     Завершить задачу
                                 </button>
                             </div>
@@ -141,11 +133,6 @@
         </div>
     </div>
 </div>
-
-<!-- Форма для завершения задачи (скрытая) -->
-<form id="complete-task-form" method="POST" action="{% url 'pomodoro:complete_task' task.id %}" style="display: none;">
-    {% csrf_token %}
-</form>
 
 <!-- Уведомление -->
 <div id="notification" class="notification hidden">

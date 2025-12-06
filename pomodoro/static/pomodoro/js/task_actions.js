@@ -191,7 +191,7 @@ function updateEstimation() {
     });
 }
 
-// Функция завершения задачи
+// Функция завершения задачи - ИСПРАВЛЕННАЯ ВЕРСИЯ
 function completeTask() {
     // Получаем название задачи
     const taskTitle = taskData ? taskData.title : document.querySelector('.task-title').textContent;
@@ -224,42 +224,46 @@ function completeTask() {
 
         console.log(`Completing task ${taskId}`);
 
-        // Используем скрытую форму для гарантированной отправки
-        const form = document.getElementById('complete-task-form');
-        if (form) {
-            form.submit();
-        } else {
-            // Альтернативный способ через AJAX
-            const formData = new FormData();
-            formData.append('csrfmiddlewaretoken', csrfToken);
+        // Используем AJAX запрос вместо скрытой формы
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', csrfToken);
 
-            fetch(`/pomodoro/task/${taskId}/complete/`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Редирект на матрицу
-                    window.location.href = data.redirect_url || '/tasks/matrix/';
-                } else {
-                    showNotification('Ошибка: ' + (data.error || 'Неизвестная ошибка'), 'error');
-                    completeBtn.innerHTML = originalText;
-                    completeBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Ошибка соединения: ' + error.message, 'error');
+        fetch(`/pomodoro/task/${taskId}/complete/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+
+            if (data.success) {
+                // Показываем уведомление об успехе
+                showNotification(data.message || 'Задача успешно завершена!', 'success');
+
+                // Ждем 1.5 секунды, чтобы пользователь увидел сообщение, затем редирект
+                setTimeout(() => {
+                    // Используем redirect_url из ответа или стандартный URL
+                    const redirectUrl = data.redirect_url || '/tasks/matrix/';
+                    console.log('Redirecting to:', redirectUrl);
+                    window.location.href = redirectUrl;
+                }, 1500);
+            } else {
+                showNotification('Ошибка: ' + (data.error || 'Неизвестная ошибка'), 'error');
                 completeBtn.innerHTML = originalText;
                 completeBtn.disabled = false;
-            });
-        }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Ошибка соединения: ' + error.message, 'error');
+            completeBtn.innerHTML = originalText;
+            completeBtn.disabled = false;
+        });
     }
 }
 
@@ -284,15 +288,6 @@ function updateTaskProgressDisplay() {
         const percentage = estimated > 0 ? (completed / estimated) * 100 : 0;
         progressBar.style.width = `${Math.min(percentage, 100)}%`;
         console.log('Progress bar updated to:', percentage.toFixed(1) + '%');
-    }
-
-    // Обновляем прогресс в шапке
-    const headerCompleted = document.querySelector('.task-progress-summary .completed');
-    const headerTotal = document.querySelector('.task-progress-summary .total');
-
-    if (headerCompleted && headerTotal) {
-        headerCompleted.textContent = completed;
-        headerTotal.textContent = estimated;
     }
 
     // Обновляем поле ввода оценки

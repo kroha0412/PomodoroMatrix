@@ -283,17 +283,7 @@ class PomodoroTimer {
             console.log('📊 Прогресс обновлен:', percentage.toFixed(1) + '%');
         }
 
-        // Обновляем прогресс в шапке
-        this.updateHeaderProgress(completed, estimated);
-    }
-
-    // НОВЫЙ МЕТОД: обновление прогресса в шапке
-    updateHeaderProgress(completed, estimated) {
-        const headerCompleted = document.querySelector('.task-progress-summary .completed');
-        const headerTotal = document.querySelector('.task-progress-summary .total');
-
-        if (headerCompleted) headerCompleted.textContent = completed;
-        if (headerTotal) headerTotal.textContent = estimated;
+        // НЕ обновляем прогресс в шапке - она удалена
     }
 
     // НОВЫЙ МЕТОД: отправка прогресса на сервер

@@ -20,14 +20,12 @@
     backdrop-filter: blur(10px);
     border-radius: 15px;
     padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .task-main-info {
-    flex: 1;
+    width: 100%;
 }
 
 .task-title {
@@ -41,6 +39,7 @@
     display: flex;
     gap: 1rem;
     align-items: center;
+    justify-content: center;
 }
 
 .quadrant-tag {
@@ -50,26 +49,6 @@
     font-weight: 600;
     color: white;
     background-color: #4ECDC4;
-}
-
-.task-progress-summary {
-    text-align: right;
-}
-
-.progress-text {
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.progress-text .completed {
-    color: #4ECDC4;
-    font-weight: 700;
-}
-
-.progress-text .total {
-    color: white;
-    opacity: 0.9;
 }
 
 /* Основной макет */
@@ -92,7 +71,7 @@
     gap: 2rem;
 }
 
-/* Карточка таймера */
+/* Карточка таймер */
 .timer-card {
     background: white;
     border-radius: 20px;
@@ -226,8 +205,6 @@
     justify-content: center;
     flex-wrap: wrap;
 }
-
-/* УДАЛИЛИ БЛОК С ЦИКЛАМИ */
 
 /* Колонка с деталями задачи */
 .task-details-column {
@@ -484,10 +461,6 @@
     .task-info-card {
         flex-direction: column;
         gap: 1.5rem;
-        text-align: center;
-    }
-
-    .task-progress-summary {
         text-align: center;
     }
 
