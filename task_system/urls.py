@@ -32,6 +32,8 @@ urlpatterns = [
     path('tasks/', include('tasks.urls')), # Подключаем URL приложения tasks
 
     path('pomodoro/', include('pomodoro.urls')),
+
+    path('analytics/', include('analytics.urls')),
 ]
 
 # Это нужно для работы с медиа-файлами (загружаемыми файлами) в режиме разработки

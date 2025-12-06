@@ -1,0 +1,1087 @@
+/* analytics/static/analytics/css/analytics.css */
+/*
+ * Стили для модуля аналитики и статистики.
+ * Дизайн для отображения графиков, метрик и таблиц статистики.
+ */
+
+/* ============ ОСНОВНЫЕ СТИЛИ ============ */
+.analytics-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+.analytics-header {
+    margin-bottom: 2rem;
+}
+
+.analytics-header h1 {
+    color: #333;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.subtitle {
+    color: #666;
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* ============ ФИЛЬТРЫ ============ */
+.filter-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.filter-form .form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.filter-form .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.filter-form select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+}
+
+.filter-form select:focus {
+    outline: none;
+    border-color: #4ECDC4;
+    box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+}
+
+.filter-form .btn {
+    padding: 0.75rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-range {
+    color: #666;
+    font-size: 0.9rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e1e5e9;
+    margin-top: 1rem;
+}
+
+/* ============ НАВИГАЦИЯ ПО ВКЛАДКАМ ============ */
+.analytics-nav {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    background: white;
+    border-radius: 12px;
+    padding: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.nav-btn:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.nav-btn.active {
+    background: #4ECDC4;
+    color: white;
+    box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+/* ============ КАРТОЧКИ МЕТРИК ============ */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+}
+
+.metric-card.primary {
+    border-left: 5px solid #667eea;
+}
+
+.metric-card.success {
+    border-left: 5px solid #4ECDC4;
+}
+
+.metric-card.warning {
+    border-left: 5px solid #FFC107;
+}
+
+.metric-card.info {
+    border-left: 5px solid #45B7D1;
+}
+
+.metric-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(78, 205, 196, 0.1);
+    color: #4ECDC4;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-content h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #333;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.metric-subvalue {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.metric-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.trend-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.trend-indicator.improving {
+    background: #28a745;
+}
+
+.trend-indicator.declining {
+    background: #dc3545;
+}
+
+.trend-indicator.stable {
+    background: #6c757d;
+}
+
+/* ============ ГРАФИКИ ============ */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.chart-header h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 0;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #666;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.legend-color.productivity {
+    background: #667eea;
+}
+
+.legend-color.focus {
+    background: #4ECDC4;
+}
+
+.chart-stats {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.chart-stats strong {
+    color: #333;
+}
+
+.chart-container {
+    height: 250px;
+    position: relative;
+}
+
+/* ============ АНАЛИЗ КВАДРАНТОВ ============ */
+.quadrant-analysis,
+.pomodoro-analysis,
+.trends-analysis,
+.daily-details {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.comparison-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.ideal-distribution h4,
+.actual-distribution h4 {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.quadrant-bars {
+    display: flex;
+    height: 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e1e5e9;
+}
+
+.quadrant-bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    font-size: 0.9rem;
+    color: white;
+    font-weight: 600;
+    transition: width 0.5s ease;
+}
+
+.quadrant-bar.ideal {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.quadrant-bar.actual.quadrant-1 {
+    background: #FF6B6B;
+}
+
+.quadrant-bar.actual.quadrant-2 {
+    background: #4ECDC4;
+}
+
+.quadrant-bar.actual.quadrant-3 {
+    background: #45B7D1;
+}
+
+.quadrant-bar.actual.quadrant-4 {
+    background: #96CEB4;
+}
+
+.quadrant-details h3,
+.recommendations-section h3,
+.pomodoro-recommendations h3,
+.trend-recommendations h3,
+.insights-section h3 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+}
+
+.quadrant-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.quadrant-detail-card {
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 2px solid;
+    background: white;
+    transition: transform 0.3s ease;
+}
+
+.quadrant-detail-card:hover {
+    transform: translateY(-5px);
+}
+
+.quadrant-detail-card.quadrant-1 {
+    border-color: #FF6B6B;
+}
+
+.quadrant-detail-card.quadrant-2 {
+    border-color: #4ECDC4;
+}
+
+.quadrant-detail-card.quadrant-3 {
+    border-color: #45B7D1;
+}
+
+.quadrant-detail-card.quadrant-4 {
+    border-color: #96CEB4;
+}
+
+.quadrant-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.quadrant-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.quadrant-header h4 {
+    flex: 1;
+    margin: 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.quadrant-percentage {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.quadrant-time {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.quadrant-description {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.quadrant-tasks {
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* ============ РЕКОМЕНДАЦИИ ============ */
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.recommendation-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #4ECDC4;
+}
+
+.rec-icon {
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+}
+
+.recommendation-item p {
+    margin: 0;
+    color: #333;
+    line-height: 1.5;
+}
+
+.success-message {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.success-message .icon {
+    font-size: 1.5rem;
+}
+
+.success-message p {
+    margin: 0;
+    color: #155724;
+    font-weight: 600;
+}
+
+/* ============ СТАТИСТИКА POMODORO ============ */
+.pomodoro-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid #e1e5e9;
+}
+
+.stat-card h4 {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.time-distribution,
+.day-distribution {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.time-distribution h3,
+.day-distribution h3 {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.time-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.time-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.time-label {
+    width: 80px;
+    color: #333;
+    font-weight: 600;
+}
+
+.time-bar-container {
+    flex: 1;
+    height: 30px;
+    background: #f0f0f0;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.time-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ECDC4, #44A08D);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 1rem;
+    min-width: 40px;
+    transition: width 1s ease;
+}
+
+.time-count {
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.time-percentage {
+    width: 60px;
+    text-align: right;
+    color: #666;
+    font-weight: 600;
+}
+
+.day-bars {
+    display: flex;
+    gap: 1rem;
+    height: 200px;
+    align-items: flex-end;
+}
+
+.day-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.day-label {
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.day-bar-container {
+    width: 40px;
+    height: 100%;
+    background: #f0f0f0;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.day-bar-fill {
+    width: 100%;
+    background: linear-gradient(to top, #667eea, #764ba2);
+    position: absolute;
+    bottom: 0;
+    border-radius: 8px 8px 0 0;
+    transition: height 1s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 0.5rem;
+}
+
+.day-count {
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.pomodoro-recommendation {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f0f9ff;
+    border-radius: 8px;
+    border-left: 4px solid #4ECDC4;
+}
+
+/* ============ ТРЕНДЫ ============ */
+.trend-indicator-card {
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.trend-indicator-card.improving {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-left: 5px solid #28a745;
+}
+
+.trend-indicator-card.declining {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-left: 5px solid #dc3545;
+}
+
+.trend-indicator-card.stable {
+    background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+    border-left: 5px solid #6c757d;
+}
+
+.trend-icon {
+    font-size: 3rem;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.trend-content {
+    flex: 1;
+}
+
+.trend-content h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.trend-value {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.trend-up {
+    color: #28a745;
+    font-size: 1.5rem;
+}
+
+.trend-down {
+    color: #dc3545;
+    font-size: 1.5rem;
+}
+
+.trend-description {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.trend-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.trend-detail-card {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.trend-detail-card h4 {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.trend-progress {
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4ECDC4, #44A08D);
+    border-radius: 4px;
+    transition: width 1s ease;
+}
+
+.day-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* ============ ТАБЛИЦА ЕЖЕДНЕВНОЙ СТАТИСТИКИ ============ */
+.daily-table-container {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    border: 1px solid #e1e5e9;
+}
+
+.daily-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.daily-table thead {
+    background: #f8f9fa;
+}
+
+.daily-table th {
+    padding: 1rem;
+    text-align: left;
+    color: #666;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 2px solid #e1e5e9;
+    white-space: nowrap;
+}
+
+.daily-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.daily-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.today-row {
+    background: #f0f9ff !important;
+    border-left: 4px solid #4ECDC4;
+}
+
+.date-cell {
+    white-space: nowrap;
+}
+
+.date-display {
+    font-weight: 600;
+    color: #333;
+}
+
+.day-of-week {
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.value {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.subtext {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.subtext.success {
+    color: #28a745;
+}
+
+.score-display {
+    position: relative;
+    height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.score-value {
+    position: relative;
+    z-index: 2;
+    font-weight: 600;
+    color: #333;
+    padding-left: 0.5rem;
+}
+
+.score-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: rgba(78, 205, 196, 0.2);
+    border-radius: 4px;
+    z-index: 1;
+    transition: width 1s ease;
+}
+
+.quadrant2-display {
+    padding: 0.5rem 1rem;
+    background: rgba(78, 205, 196, 0.1);
+    border-radius: 20px;
+    font-weight: 600;
+    color: #2a7c74;
+    text-align: center;
+    display: inline-block;
+}
+
+.interruption-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: #dc3545;
+    color: white;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: center;
+}
+
+.no-interruptions {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.empty-data {
+    text-align: center;
+    padding: 3rem !important;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: #666;
+}
+
+.empty-state .icon {
+    font-size: 3rem;
+    opacity: 0.5;
+}
+
+/* ============ ИНСАЙТЫ ============ */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.insight-card {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.insight-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.insight-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.insight-card h4 {
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.insight-value {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ============ УТИЛИТЫ ============ */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============ АДАПТИВНОСТЬ ============ */
+@media (max-width: 768px) {
+    .analytics-container {
+        padding: 1rem;
+    }
+
+    .analytics-header h1 {
+        font-size: 2rem;
+    }
+
+    .filter-form .form-row {
+        flex-direction: column;
+    }
+
+    .filter-form .form-group {
+        min-width: 100%;
+    }
+
+    .analytics-nav {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        padding: 0.5rem;
+    }
+
+    .nav-btn {
+        min-width: 140px;
+        white-space: nowrap;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .quadrant-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .pomodoro-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .day-bars {
+        height: 150px;
+    }
+
+    .day-bar-container {
+        width: 30px;
+    }
+
+    .trend-indicator-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .trend-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .pomodoro-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .trend-value {
+        font-size: 2rem;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+    }
+}
