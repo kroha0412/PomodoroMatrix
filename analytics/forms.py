@@ -15,13 +15,11 @@ class AnalyticsFilterForm(forms.Form):
     Позволяет пользователю выбирать временной диапазон для просмотра статистики.
     """
 
-    # Опции периодов для выбора
+    # Опции периодов для выбора (исправленный список)
     PERIOD_CHOICES = [
+        ('today', '📅 Сегодня'),
         ('7', '📅 Последние 7 дней'),
         ('30', '📅 Последние 30 дней'),
-        ('90', '📅 Последние 3 месяца'),
-        ('180', '📅 Последние 6 месяцев'),
-        ('365', '📅 Последний год'),
     ]
 
     # Поле выбора периода
@@ -29,26 +27,6 @@ class AnalyticsFilterForm(forms.Form):
         choices=PERIOD_CHOICES,
         initial='30',  # По умолчанию 30 дней
         label='Период анализа',
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-            'style': 'cursor: pointer;'
-        })
-    )
-
-    # Опциональные поля для фильтрации по квадрантам
-    SHOW_QUADRANT_CHOICES = [
-        ('all', 'Все квадранты'),
-        ('1', 'Только Квадрант 1 (Важные/Срочные)'),
-        ('2', 'Только Квадрант 2 (Важные/Несрочные)'),
-        ('3', 'Только Квадрант 3 (Неважные/Срочные)'),
-        ('4', 'Только Квадрант 4 (Неважные/Несрочные)'),
-    ]
-
-    show_quadrant = forms.ChoiceField(
-        choices=SHOW_QUADRANT_CHOICES,
-        initial='all',
-        label='Фильтр по квадрантам',
-        required=False,
         widget=forms.Select(attrs={
             'class': 'form-control',
             'style': 'cursor: pointer;'
@@ -70,27 +48,11 @@ class AnalyticsFilterForm(forms.Form):
         today = timezone.now().date()
 
         # Определяем начальную дату на основе выбранного периода
-        if period == '7':
+        if period == 'today':
+            start_date = today
+        elif period == '7':
             start_date = today - timedelta(days=6)
-        elif period == '30':
+        else:  # '30' или по умолчанию
             start_date = today - timedelta(days=29)
-        elif period == '90':
-            start_date = today - timedelta(days=89)
-        elif period == '180':
-            start_date = today - timedelta(days=179)
-        elif period == '365':
-            start_date = today - timedelta(days=364)
-        else:
-            start_date = today - timedelta(days=29)  # По умолчанию
 
         return start_date, today
-
-    def get_quadrant_filter(self):
-        """
-        Возвращает номер квадранта для фильтрации или None для всех.
-        """
-        if self.is_valid():
-            quadrant = self.cleaned_data.get('show_quadrant', 'all')
-            if quadrant != 'all':
-                return quadrant
-        return None

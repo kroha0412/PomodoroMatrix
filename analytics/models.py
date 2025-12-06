@@ -204,7 +204,25 @@ class ProductivityStats(models.Model):
             }
 
         # Подсчитываем активные дни (дни с работой)
-        active_days = stats.filter(total_time_spent__gt=0).count()
+        # ВАЖНО: total_time_spent - это property, его нельзя использовать в filter()
+        # Поэтому считаем активные дни через Python
+        active_days = 0
+        quadrant_totals = {"1": 0, "2": 0, "3": 0, "4": 0}
+
+        for stat in stats:
+            # Считаем total_time_spent для каждой записи
+            total_time = 0
+            if isinstance(stat.time_spent_per_quadrant, dict):
+                total_time = sum(stat.time_spent_per_quadrant.values())
+
+            if total_time > 0:
+                active_days += 1
+
+            # Суммируем время по квадрантам
+            if isinstance(stat.time_spent_per_quadrant, dict):
+                for quadrant, time in stat.time_spent_per_quadrant.items():
+                    if quadrant in quadrant_totals:
+                        quadrant_totals[quadrant] += time
 
         # Агрегированные данные
         aggregates = stats.aggregate(
@@ -215,13 +233,6 @@ class ProductivityStats(models.Model):
             total_interruptions=Sum('interruptions_count'),
             total_quadrant_2=Sum('quadrant_2_time')
         )
-
-        # Распределение по квадрантам
-        quadrant_totals = {"1": 0, "2": 0, "3": 0, "4": 0}
-        for stat in stats:
-            for quadrant, time in stat.time_spent_per_quadrant.items():
-                if quadrant in quadrant_totals:
-                    quadrant_totals[quadrant] += time
 
         total_time = sum(quadrant_totals.values())
         if total_time > 0:

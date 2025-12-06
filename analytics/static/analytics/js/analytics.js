@@ -4,16 +4,33 @@
  * Обеспечивает интерактивность, переключение вкладок и работу с графиками.
  */
 
+// Глобальные переменные для хранения экземпляров графиков
+let productivityChart = null;
+let quadrantChart = null;
+
+function waitForChartData(callback) {
+    // Ждем пока данные будут доступны
+    if (typeof window.chartData !== 'undefined') {
+        callback();
+    } else {
+        setTimeout(function() {
+            waitForChartData(callback);
+        }, 100);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Analytics module loaded');
 
-    // Инициализация всех компонентов
-    initNavigation();
-    initCharts();
-    initFilters();
+    // Ждем данных, потом инициализируем
+    waitForChartData(function() {
+        console.log('Chart data ready, initializing components...');
 
-    // Загружаем дополнительные данные через API
-    loadAdditionalData();
+        // Инициализация всех компонентов
+        initNavigation();
+        initCharts();
+        initFilters();
+    });
 });
 
 // ============ ИНИЦИАЛИЗАЦИЯ НАВИГАЦИИ ============
@@ -40,7 +57,8 @@ function initNavigation() {
 
                 // Перерисовываем графики при переключении вкладок
                 setTimeout(() => {
-                    window.dispatchEvent(new Event('resize'));
+                    if (productivityChart) productivityChart.resize();
+                    if (quadrantChart) quadrantChart.resize();
                 }, 100);
             }
         });
@@ -49,9 +67,30 @@ function initNavigation() {
 
 // ============ ИНИЦИАЛИЗАЦИЯ ГРАФИКОВ ============
 function initCharts() {
+    console.log('Initializing charts...');
+    console.log('Window.chartData:', window.chartData);
+
     // Проверяем наличие Chart.js
     if (typeof Chart === 'undefined') {
         console.error('Chart.js не загружен');
+        // Пробуем загрузить динамически
+        loadChartJS();
+        return;
+    }
+
+    // Уничтожаем старые графики, если они существуют
+    if (productivityChart) {
+        productivityChart.destroy();
+        productivityChart = null;
+    }
+    if (quadrantChart) {
+        quadrantChart.destroy();
+        quadrantChart = null;
+    }
+
+    // Проверяем наличие данных
+    if (!window.chartData) {
+        console.error('Chart data not found in window object');
         return;
     }
 
@@ -60,121 +99,252 @@ function initCharts() {
     initQuadrantChart();
 }
 
+function loadChartJS() {
+    console.log('Trying to load Chart.js dynamically...');
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+    script.onload = function() {
+        console.log('Chart.js dynamically loaded');
+        initCharts();
+    };
+    script.onerror = function() {
+        console.error('Failed to load Chart.js');
+    };
+    document.head.appendChild(script);
+}
+
 function initProductivityChart() {
     const ctx = document.getElementById('productivityChart');
-    if (!ctx) return;
+    if (!ctx) {
+        console.error('Productivity chart canvas not found');
+        return;
+    }
 
-    // Данные из шаблона
+    // Данные из глобальной переменной
     const chartData = window.chartData;
-    if (!chartData || !chartData.daily) return;
+    if (!chartData || !chartData.daily) {
+        console.error('Daily chart data not found in chartData');
+        return;
+    }
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: chartData.daily.labels,
-            datasets: [
-                {
-                    label: 'Продуктивность',
-                    data: chartData.daily.productivity,
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Фокус',
-                    data: chartData.daily.focus,
-                    borderColor: '#4ECDC4',
-                    backgroundColor: 'rgba(78, 205, 196, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
+    // Проверяем, есть ли данные для отображения
+    if (!chartData.daily.labels || chartData.daily.labels.length === 0) {
+        console.warn('No labels for productivity chart');
+        // Создаем тестовые данные для отладки
+        createTestProductivityChart(ctx);
+        return;
+    }
+
+    try {
+        productivityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.daily.labels,
+                datasets: [
+                    {
+                        label: 'Продуктивность',
+                        data: chartData.daily.productivity,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
                     },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
+                    {
+                        label: 'Фокус',
+                        data: chartData.daily.focus,
+                        borderColor: '#4ECDC4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
                     }
                 },
-                x: {
-                    grid: {
-                        display: false
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+        console.log('Productivity chart initialized with data:', {
+            labels: chartData.daily.labels.length,
+            productivityPoints: chartData.daily.productivity.length,
+            focusPoints: chartData.daily.focus.length
+        });
+    } catch (error) {
+        console.error('Error initializing productivity chart:', error);
+        // Пробуем создать тестовый график
+        createTestProductivityChart(ctx);
+    }
+}
+
+function createTestProductivityChart(ctx) {
+    console.log('Creating test productivity chart');
+    try {
+        productivityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['День 1', 'День 2', 'День 3'],
+                datasets: [{
+                    label: 'Тестовая продуктивность',
+                    data: [50, 75, 60],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+        console.log('Test productivity chart created');
+    } catch (error) {
+        console.error('Failed to create test chart:', error);
+    }
 }
 
 function initQuadrantChart() {
     const ctx = document.getElementById('quadrantChart');
-    if (!ctx) return;
+    if (!ctx) {
+        console.error('Quadrant chart canvas not found');
+        return;
+    }
 
     const chartData = window.chartData;
-    if (!chartData || !chartData.quadrants) return;
+    if (!chartData || !chartData.quadrants) {
+        console.error('Quadrant chart data not found in chartData');
+        return;
+    }
 
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: chartData.quadrants.labels,
-            datasets: [{
-                data: chartData.quadrants.data,
-                backgroundColor: chartData.quadrants.colors,
-                borderWidth: 1,
-                borderColor: 'rgba(255, 255, 255, 0.8)'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        boxWidth: 12,
-                        padding: 15
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + context.parsed + '%';
+    // Проверяем, есть ли данные для отображения
+    if (!chartData.quadrants.data || chartData.quadrants.data.length === 0) {
+        console.warn('No data for quadrant chart');
+        // Создаем тестовые данные для отладки
+        createTestQuadrantChart(ctx);
+        return;
+    }
+
+    try {
+        quadrantChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: chartData.quadrants.labels,
+                datasets: [{
+                    data: chartData.quadrants.data,
+                    backgroundColor: chartData.quadrants.colors,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
                         }
                     }
-                }
+                },
+                cutout: '60%'
+            }
+        });
+        console.log('Quadrant chart initialized with data:', chartData.quadrants.data);
+    } catch (error) {
+        console.error('Error initializing quadrant chart:', error);
+        // Пробуем создать тестовый график
+        createTestQuadrantChart(ctx);
+    }
+}
+
+function createTestQuadrantChart(ctx) {
+    console.log('Creating test quadrant chart');
+    try {
+        quadrantChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Квадрант 1', 'Квадрант 2', 'Квадрант 3', 'Квадрант 4'],
+                datasets: [{
+                    data: [25, 50, 15, 10],
+                    backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
+                }]
             },
-            cutout: '60%'
-        }
-    });
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%'
+            }
+        });
+        console.log('Test quadrant chart created');
+    } catch (error) {
+        console.error('Failed to create test quadrant chart:', error);
+    }
 }
 
 // ============ ИНИЦИАЛИЗАЦИЯ ФИЛЬТРОВ ============
 function initFilters() {
     const filterForm = document.getElementById('analytics-filter');
-    if (!filterForm) return;
+    if (!filterForm) {
+        console.error('Filter form not found');
+        return;
+    }
+
+    // Устанавливаем выбранное значение из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const periodParam = urlParams.get('period');
+    if (periodParam) {
+        const periodSelect = filterForm.querySelector('[name="period"]');
+        if (periodSelect) {
+            periodSelect.value = periodParam;
+            console.log('Set period from URL:', periodParam);
+        }
+    }
 
     // Обработка сброса фильтров
     window.resetFilters = function() {
@@ -183,132 +353,3 @@ function initFilters() {
         filterForm.submit();
     };
 }
-
-// ============ ЗАГРУЗКА ДОПОЛНИТЕЛЬНЫХ ДАННЫХ ============
-function loadAdditionalData() {
-    // Загружаем данные через API для обновления статистики
-    fetchDailyStats();
-    fetchQuadrantStats();
-}
-
-function fetchDailyStats() {
-    const url = '/analytics/api/daily-stats/?days=30';
-
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            console.log('Daily stats loaded:', data);
-        })
-        .catch(error => {
-            console.error('Error loading daily stats:', error);
-        });
-}
-
-function fetchQuadrantStats() {
-    const url = '/analytics/api/quadrant-stats/?days=30';
-
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            console.log('Quadrant stats loaded:', data);
-        })
-        .catch(error => {
-            console.error('Error loading quadrant stats:', error);
-        });
-}
-
-// ============ УТИЛИТЫ ============
-function updateIndicators(data) {
-    // Обновляем счетчики и индикаторы на странице
-    const indicators = {
-        'total-pomodoros': data.pomodoros ? data.pomodoros.reduce((a, b) => a + b, 0) : 0,
-        'total-tasks': data.tasks ? data.tasks.reduce((a, b) => a + b, 0) : 0,
-        'avg-productivity': data.productivity ?
-            (data.productivity.reduce((a, b) => a + b, 0) / data.productivity.length).toFixed(1) : 0
-    };
-
-    // Обновляем DOM элементы
-    for (const [key, value] of Object.entries(indicators)) {
-        const element = document.getElementById(key);
-        if (element) {
-            element.textContent = value;
-        }
-    }
-}
-
-function updateQuadrantInfo(data) {
-    // Обновляем информацию о распределении по квадрантам
-    const quadrantInfo = document.querySelector('.quadrant-distribution-info');
-    if (quadrantInfo && data.total_hours) {
-        quadrantInfo.innerHTML = `
-            <strong>${data.total_hours} часов</strong> работы распределено по квадрантам
-        `;
-    }
-}
-
-// ============ ЭКСПОРТ ДАННЫХ ============
-function exportToCSV() {
-    const table = document.querySelector('.daily-table');
-    if (!table) return;
-
-    let csv = [];
-    const rows = table.querySelectorAll('tr');
-
-    rows.forEach(row => {
-        const rowData = [];
-        const cells = row.querySelectorAll('th, td');
-
-        cells.forEach(cell => {
-            let text = cell.textContent.trim();
-            // Экранируем кавычки
-            text = text.replace(/"/g, '""');
-            // Оборачиваем в кавычки если содержит запятую
-            if (text.includes(',')) {
-                text = `"${text}"`;
-            }
-            rowData.push(text);
-        });
-
-        csv.push(rowData.join(','));
-    });
-
-    const csvContent = csv.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-
-    if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `analytics_${new Date().toISOString().slice(0, 10)}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-}
-
-// Добавляем кнопку экспорта
-function addExportButton() {
-    const header = document.querySelector('.analytics-header');
-    if (!header) return;
-
-    const exportBtn = document.createElement('button');
-    exportBtn.className = 'btn btn-outline';
-    exportBtn.innerHTML = '<span class="icon">📥</span> Экспорт CSV';
-    exportBtn.style.marginLeft = 'auto';
-    exportBtn.onclick = exportToCSV;
-
-    const actionsContainer = document.createElement('div');
-    actionsContainer.style.display = 'flex';
-    actionsContainer.style.gap = '1rem';
-    actionsContainer.style.alignItems = 'center';
-    actionsContainer.appendChild(exportBtn);
-
-    const filterCard = header.querySelector('.filter-card');
-    if (filterCard) {
-        filterCard.appendChild(actionsContainer);
-    }
-}
-
-// Инициализируем кнопку экспорта после загрузки
-setTimeout(addExportButton, 1000);

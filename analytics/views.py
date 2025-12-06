@@ -25,39 +25,77 @@ def analytics_dashboard(request):
     # Инициализируем форму фильтрации
     form = AnalyticsFilterForm(request.GET or None)
 
-    # Получаем диапазон дат из формы (по умолчанию 30 дней)
+    # Отладочная информация
+    print(f"=== ANALYTICS DEBUG ===")
+    print(f"Request GET: {request.GET}")
+    print(f"Form is valid: {form.is_valid()}")
+
+    # Получаем диапазон дат из формы
     if form.is_valid():
         start_date, end_date = form.get_date_range()
+        selected_period = form.cleaned_data.get('period', '30')
+        print(f"Selected period: {selected_period}")
     else:
         start_date = timezone.now().date() - timedelta(days=29)
         end_date = timezone.now().date()
+        selected_period = '30'
+        print(f"Using default period: {selected_period}")
 
-    # Получаем статистику за период
-    stats = ProductivityStats.objects.filter(
-        user=request.user,
-        date__range=[start_date, end_date]
-    ).order_by('date')
+    print(f"Date range: {start_date} - {end_date}")
 
-    # Заполняем пропущенные дни нулевыми значениями
-    daily_stats = []
-    current_date = start_date
-    while current_date <= end_date:
-        day_stats = stats.filter(date=current_date).first()
-        if day_stats:
-            daily_stats.append(day_stats)
+    # Если выбран "сегодня", показываем только сегодняшний день
+    if selected_period == 'today':
+        daily_stats = []
+        today_stats = ProductivityStats.objects.filter(
+            user=request.user,
+            date=timezone.now().date()
+        ).first()
+
+        if today_stats:
+            daily_stats.append(today_stats)
+            print(f"Found today's stats: {today_stats}")
         else:
+            # Если нет статистики за сегодня, создаем пустую
             daily_stats.append(ProductivityStats(
                 user=request.user,
-                date=current_date,
+                date=timezone.now().date(),
                 time_spent_per_quadrant={"1": 0, "2": 0, "3": 0, "4": 0}
             ))
-        current_date += timedelta(days=1)
+            print("Created empty stats for today")
+    else:
+        # Получаем статистику за период
+        stats = ProductivityStats.objects.filter(
+            user=request.user,
+            date__range=[start_date, end_date]
+        ).order_by('date')
+
+        print(f"Found {stats.count()} stats records for period")
+
+        # Заполняем пропущенные дни нулевыми значениями
+        daily_stats = []
+        current_date = start_date
+        while current_date <= end_date:
+            day_stats = stats.filter(date=current_date).first()
+            if day_stats:
+                daily_stats.append(day_stats)
+            else:
+                daily_stats.append(ProductivityStats(
+                    user=request.user,
+                    date=current_date,
+                    time_spent_per_quadrant={"1": 0, "2": 0, "3": 0, "4": 0}
+                ))
+            current_date += timedelta(days=1)
+
+        print(f"Created {len(daily_stats)} days in daily_stats")
 
     # Сводная статистика
+    days_count = (end_date - start_date).days + 1
     summary = ProductivityStats.get_user_summary(
         user=request.user,
-        days=(end_date - start_date).days + 1
+        days=days_count
     )
+
+    print(f"Summary stats: {summary}")
 
     # Подготавливаем данные для графиков
     dates = [stat.date.strftime('%d.%m') for stat in daily_stats]
@@ -65,6 +103,10 @@ def analytics_dashboard(request):
     tasks = [stat.total_tasks_completed for stat in daily_stats]
     productivity_scores = [float(stat.productivity_score) for stat in daily_stats]
     focus_scores = [float(stat.focus_score) for stat in daily_stats]
+
+    print(f"Dates for chart: {dates}")
+    print(f"Productivity scores: {productivity_scores}")
+    print(f"Focus scores: {focus_scores}")
 
     # Распределение по квадрантам
     quadrant_totals = {"1": 0, "2": 0, "3": 0, "4": 0}
@@ -85,26 +127,31 @@ def analytics_dashboard(request):
     else:
         quadrant_percentages = {"1": 0, "2": 0, "3": 0, "4": 0}
 
-    # Данные для графиков
+    print(f"Quadrant percentages: {quadrant_percentages}")
+    print(f"Quadrant totals: {quadrant_totals}")
+
+    # Данные для графиков - УБЕДИТЕСЬ что данные не пустые!
     chart_data = {
         'daily': {
-            'labels': dates,
-            'productivity': productivity_scores,
-            'focus': focus_scores,
-            'pomodoros': pomodoros,
-            'tasks': tasks,
+            'labels': dates if dates else ['Нет данных'],
+            'productivity': productivity_scores if productivity_scores else [0],
+            'focus': focus_scores if focus_scores else [0],
+            'pomodoros': pomodoros if pomodoros else [0],
+            'tasks': tasks if tasks else [0],
         },
         'quadrants': {
             'labels': ['Важные/Срочные', 'Важные/Несрочные', 'Неважные/Срочные', 'Неважные/Несрочные'],
             'data': [
-                quadrant_percentages["1"],
-                quadrant_percentages["2"],
-                quadrant_percentages["3"],
-                quadrant_percentages["4"]
+                quadrant_percentages.get("1", 0),
+                quadrant_percentages.get("2", 0),
+                quadrant_percentages.get("3", 0),
+                quadrant_percentages.get("4", 0)
             ],
             'colors': ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'],
         }
     }
+
+    print(f"Chart data prepared: {json.dumps(chart_data, indent=2)}")
 
     # Контекст для шаблона
     context = {
@@ -112,7 +159,7 @@ def analytics_dashboard(request):
         'form': form,
         'daily_stats': daily_stats,
         'summary': summary,
-        'chart_data': json.dumps(chart_data),
+        'chart_data': json.dumps(chart_data, ensure_ascii=False),  # ensure_ascii=False для кириллицы
         'start_date': start_date,
         'end_date': end_date,
         'today': timezone.now().date(),
@@ -120,12 +167,6 @@ def analytics_dashboard(request):
             'total_time': round(total_time / 3600, 1),
             'quadrant_percentages': quadrant_percentages,
             'quadrant_totals': quadrant_totals,
-            'ideal_distribution': {
-                "1": "15-20%",
-                "2": "60-70%",
-                "3": "10-15%",
-                "4": "0-5%"
-            }
         }
     }
 

@@ -13,9 +13,7 @@ class AnalyticsConfig(AppConfig):
     def ready(self):
         """
         Метод вызывается при загрузке приложения.
+        Регистрируем сигналы.
         """
-        # Импортируем сигналы здесь, чтобы избежать циклических импортов
-        try:
-            from . import signals
-        except ImportError:
-            pass
+        # Импортируем сигналы здесь, чтобы они были зарегистрированы
+        import analytics.signals

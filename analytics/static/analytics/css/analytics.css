@@ -1085,3 +1085,27 @@
         font-size: 2rem;
     }
 }
+/* Скрываем удаленные элементы */
+.daily-details,
+.daily-table-container,
+.daily-table,
+.recommendations-section,
+.recommendations-list,
+.recommendation-item,
+.comparison-section,
+.comparison-grid,
+.ideal-distribution,
+.ideal-bars {
+    display: none !important;
+}
+
+/* Уменьшаем количество вариантов в навигации */
+.analytics-nav {
+    max-width: 400px;
+    margin: 0 auto 2rem;
+}
+
+.nav-btn {
+    flex: 1;
+    min-width: 180px;
+}
