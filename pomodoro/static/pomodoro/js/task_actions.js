@@ -11,8 +11,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Получаем CSRF токен
     csrfToken = getCSRFToken();
 
+    // Инициализируем данные задачи из глобальной переменной
+    if (window.taskData) {
+        taskData = window.taskData;
+        console.log('Task data loaded from window:', taskData);
+    }
+
+    // Инициализируем настройки из глобальной переменной
+    if (window.settingsData) {
+        settingsData = window.settingsData;
+        console.log('Settings data loaded from window:', settingsData);
+    }
+
     // Назначаем обработчики событий
     initEventListeners();
+
+    // Инициализация прогресса при загрузке
+    updateTaskProgressDisplay();
 
     // Отладочная информация
     console.log('Task actions initialized');
@@ -152,47 +167,13 @@ function updateEstimation() {
     })
     .then(data => {
         if (data.success) {
-            // Обновляем данные на странице
+            // Обновляем данные задачи
             if (taskData) {
-                taskData.totalPomodoros = estimatedPomodoros;
+                taskData.estimated_pomodoros = estimatedPomodoros;
             }
 
-            // Обновляем прогресс-бар
-            const progressBar = document.getElementById('task-progress-bar');
-            const progressText = document.getElementById('progress-text');
-            const completedElement = document.querySelector('.progress-text .completed');
-            const totalElement = document.querySelector('.progress-text .total');
-
-            if (progressBar && progressText) {
-                // Пересчитываем процент выполнения
-                let completed = 0;
-                if (completedElement) {
-                    completed = parseInt(completedElement.textContent) || 0;
-                }
-
-                let percentage = 0;
-                if (estimatedPomodoros > 0) {
-                    percentage = (completed / estimatedPomodoros) * 100;
-                }
-
-                progressBar.style.width = `${percentage}%`;
-
-                // Обновляем текст прогресса
-                if (completedElement && totalElement) {
-                    completedElement.textContent = completed;
-                    totalElement.textContent = estimatedPomodoros;
-                } else {
-                    progressText.innerHTML =
-                        `Выполнено <span class="completed">${completed}</span> из
-                         <span class="total">${estimatedPomodoros}</span> Pomodoro`;
-                }
-            }
-
-            // Обновляем заголовок прогресса
-            const progressSummary = document.querySelector('.task-progress-summary .total');
-            if (progressSummary) {
-                progressSummary.textContent = estimatedPomodoros;
-            }
+            // Обновляем отображение прогресса
+            updateTaskProgressDisplay();
 
             showNotification('Оценка успешно обновлена!');
         } else {
@@ -282,6 +263,45 @@ function completeTask() {
     }
 }
 
+// Функция обновления отображения прогресса задачи
+function updateTaskProgressDisplay() {
+    const completed = taskData?.completed_pomodoros || 0;
+    const estimated = taskData?.estimated_pomodoros || 1;
+
+    console.log('Updating progress display:', completed + '/' + estimated);
+
+    // Обновляем текстовый счетчик
+    const progressTextElement = document.getElementById('progress-text');
+    if (progressTextElement) {
+        progressTextElement.innerHTML =
+            `Выполнено <span class="completed">${completed}</span> из ` +
+            `<span class="total">${estimated}</span> Pomodoro`;
+    }
+
+    // Обновляем прогресс-бар
+    const progressBar = document.getElementById('task-progress-bar');
+    if (progressBar) {
+        const percentage = estimated > 0 ? (completed / estimated) * 100 : 0;
+        progressBar.style.width = `${Math.min(percentage, 100)}%`;
+        console.log('Progress bar updated to:', percentage.toFixed(1) + '%');
+    }
+
+    // Обновляем прогресс в шапке
+    const headerCompleted = document.querySelector('.task-progress-summary .completed');
+    const headerTotal = document.querySelector('.task-progress-summary .total');
+
+    if (headerCompleted && headerTotal) {
+        headerCompleted.textContent = completed;
+        headerTotal.textContent = estimated;
+    }
+
+    // Обновляем поле ввода оценки
+    const estimationInput = document.getElementById('estimated-pomodoros');
+    if (estimationInput && taskData) {
+        estimationInput.value = taskData.estimated_pomodoros;
+    }
+}
+
 // Экспорт функций для использования в других файлах
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -289,6 +309,7 @@ if (typeof module !== 'undefined' && module.exports) {
         showNotification,
         updateEstimation,
         completeTask,
+        updateTaskProgressDisplay,
         setTaskData: function(data) { taskData = data; },
         setSettingsData: function(data) { settingsData = data; },
         setCsrfToken: function(token) { csrfToken = token; }

@@ -72,19 +72,7 @@
                         </div>
                     </div>
 
-                    <!-- Прогресс циклов -->
-                    <div class="cycles-progress">
-                        <div class="progress-header">
-                            <h3>Цикл</h3>
-                            <span class="cycle-counter" id="cycle-counter">1/4</span>
-                        </div>
-                        <div class="cycles-visual">
-                            {% for i in "1234" %}
-                            <div class="cycle-dot {% if forloop.counter == 1 %}active{% endif %}"
-                                 id="cycle-dot-{{ forloop.counter }}"></div>
-                            {% endfor %}
-                        </div>
-                    </div>
+                    <!-- Убрали блок "Цикл" отсюда -->
                 </div>
             </div>
 
@@ -168,6 +156,51 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Передаем данные в JavaScript -->
+<script>
+    // Глобальные переменные для JavaScript
+    window.settingsData = {
+        workDuration: {{ settings.pomodoro_duration }},
+        shortBreak: {{ settings.short_break_duration }},
+        longBreak: {{ settings.long_break_duration }},
+        cyclesBeforeLongBreak: {{ settings.pomodoros_before_long_break }}
+    };
+
+    window.taskData = {
+        id: {{ task.id }},
+        title: "{{ task.title|escapejs }}",
+        completed_pomodoros: {{ task.completed_pomodoros }},
+        estimated_pomodoros: {{ task.estimated_pomodoros }},
+        quadrant: {% if task.quadrant %}{
+            id: {{ task.quadrant.id }},
+            name: "{{ task.quadrant.name|escapejs }}",
+            color_code: "{{ task.quadrant.color_code|escapejs }}"
+        }{% else %}null{% endif %}
+    };
+
+    // Функция для получения CSRF токена
+    window.getCSRFToken = function() {
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfInput ? csrfInput.value : '';
+    };
+
+    // Инициализация прогресса при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📊 Инициализация прогресса...');
+
+        // Убедимся, что прогресс-бар правильно отображается
+        const progressBar = document.getElementById('task-progress-bar');
+        const completed = {{ task.completed_pomodoros }};
+        const estimated = {{ task.estimated_pomodoros }};
+
+        if (progressBar) {
+            const percentage = estimated > 0 ? (completed / estimated) * 100 : 0;
+            progressBar.style.width = `${Math.min(percentage, 100)}%`;
+            console.log('📊 Инициализация прогресса:', completed + '/' + estimated, '=', percentage.toFixed(1) + '%');
+        }
+    });
+</script>
+
 <script src="{% static 'pomodoro/js/timer.js' %}"></script>
 <script src="{% static 'pomodoro/js/task_actions.js' %}"></script>
 {% endblock %}

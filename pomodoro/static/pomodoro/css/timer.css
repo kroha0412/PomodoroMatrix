@@ -227,53 +227,7 @@
     flex-wrap: wrap;
 }
 
-/* Прогресс циклов */
-.cycles-progress {
-    margin-top: 2.5rem;
-    padding-top: 2rem;
-    border-top: 2px solid #f0f0f0;
-}
-
-.progress-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.progress-header h3 {
-    color: #333;
-    font-size: 1.3rem;
-    margin: 0;
-}
-
-.cycle-counter {
-    background: #667eea;
-    color: white;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-}
-
-.cycles-visual {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-}
-
-.cycle-dot {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: #f0f0f0;
-    transition: all 0.3s ease;
-}
-
-.cycle-dot.active {
-    background: #4ECDC4;
-    transform: scale(1.2);
-    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
-}
+/* УДАЛИЛИ БЛОК С ЦИКЛАМИ */
 
 /* Колонка с деталями задачи */
 .task-details-column {
@@ -455,11 +409,13 @@
     right: 20px;
     background: #4ECDC4;
     color: white;
-    padding: 1rem 1.5rem;
+    padding: 15px 20px;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     z-index: 10000;
+    max-width: 300px;
     animation: slideIn 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .notification.hidden {
@@ -477,7 +433,53 @@
     }
 }
 
-/* Адаптивность */
+/* Дополнительные стили для прогресс-бара */
+.progress-bar {
+    position: relative;
+}
+
+.progress-fill:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(255, 255, 255, 0.3) 100%
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Анимация для завершения Pomodoro */
+@keyframes pomodoroComplete {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(78, 205, 196, 0.7);
+    }
+    70% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 20px rgba(78, 205, 196, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(78, 205, 196, 0);
+    }
+}
+
+.pomodoro-complete {
+    animation: pomodoroComplete 1.5s ease;
+}
+
+/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
     .task-info-card {
         flex-direction: column;
@@ -530,6 +532,13 @@
 
     .btn-save-estimation {
         width: 100%;
+    }
+
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
     }
 }
 

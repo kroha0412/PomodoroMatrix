@@ -223,3 +223,48 @@ def complete_task(request, task_id):
         'success': False,
         'error': 'Неверный метод запроса'
     })
+
+
+@login_required
+@csrf_exempt
+def update_task_progress(request, task_id):
+    """Обновление прогресса выполнения задачи (количество выполненных Pomodoro)"""
+    if request.method == 'POST':
+        try:
+            print(f"Updating progress for task {task_id}")  # Для отладки
+
+            task = Task.objects.get(id=task_id, user=request.user)
+            completed_pomodoros = request.POST.get('completed_pomodoros')
+
+            if completed_pomodoros:
+                task.completed_pomodoros = int(completed_pomodoros)
+                task.save()
+                print(f"Task {task_id} progress updated to {task.completed_pomodoros}")
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Прогресс обновлен',
+                'progress': {
+                    'completed': task.completed_pomodoros,
+                    'estimated': task.estimated_pomodoros,
+                    'percentage': (
+                                task.completed_pomodoros / task.estimated_pomodoros * 100) if task.estimated_pomodoros > 0 else 0
+                }
+            })
+
+        except Task.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Задача не найдена'
+            })
+        except Exception as e:
+            print(f"Error updating progress: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+
+    return JsonResponse({
+        'success': False,
+        'error': 'Неверный метод запроса'
+    })
