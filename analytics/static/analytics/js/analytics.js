@@ -1,6 +1,7 @@
 // analytics/static/analytics/js/analytics.js
 /**
- * Минималистичный скрипт для аналитики
+ * Скрипт для упрощенной аналитики
+ * Только график продуктивности
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -9,9 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initFilters();
 });
 
-// ============ ГРАФИКИ ============
+// ============ ГРАФИК ============
 function initCharts() {
     if (typeof Chart === 'undefined') {
+        // Если Chart.js еще не загружен, пробуем снова через 100мс
         setTimeout(initCharts, 100);
         return;
     }
@@ -22,7 +24,6 @@ function initCharts() {
     }
 
     createProductivityChart();
-    createQuadrantChart();
 }
 
 function createProductivityChart() {
@@ -86,39 +87,6 @@ function createProductivityChart() {
         });
     } catch (error) {
         console.error('Error creating productivity chart:', error);
-    }
-}
-
-function createQuadrantChart() {
-    const ctx = document.getElementById('quadrantChart');
-    if (!ctx) return;
-
-    const data = window.chartData;
-
-    try {
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: data.quadrants.labels,
-                datasets: [{
-                    data: data.quadrants.data,
-                    backgroundColor: data.quadrants.colors,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right'
-                    }
-                },
-                cutout: '60%'
-            }
-        });
-    } catch (error) {
-        console.error('Error creating quadrant chart:', error);
     }
 }
 

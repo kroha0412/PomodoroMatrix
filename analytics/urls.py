@@ -1,7 +1,7 @@
 # analytics/urls.py
 """
 URL-маршруты для модуля аналитики.
-Определяет все доступные пути для просмотра статистики.
+Только основные пути для упрощенной аналитики.
 """
 
 from django.urls import path
@@ -13,7 +13,8 @@ urlpatterns = [
     # Главная панель аналитики
     path('', views.analytics_dashboard, name='dashboard'),
 
-    # API endpoints для динамического обновления данных
+    # API endpoint для динамического обновления данных (только ежедневная статистика)
     path('api/daily-stats/', views.api_daily_stats, name='api_daily_stats'),
-    path('api/quadrant-stats/', views.api_quadrant_stats, name='api_quadrant_stats'),
+
+    # УБРАЛИ: path('api/quadrant-stats/', views.api_quadrant_stats, name='api_quadrant_stats'),
 ]

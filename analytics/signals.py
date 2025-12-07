@@ -88,7 +88,9 @@ def handle_pomodoro_session(sender, instance, created, **kwargs):
             logger.info(f"[SIGNAL] Увеличено количество Pomodoro: {stats.total_pomodoros_completed}")
 
             # Увеличиваем счетчик запланированных Pomodoro
-            stats.planned_pomodoros += 1
+            # ГАРАНТИРУЕМ, что planned_pomodoros не меньше выполненных
+            if stats.planned_pomodoros < stats.total_pomodoros_completed:
+                stats.planned_pomodoros = stats.total_pomodoros_completed + 1
 
             # Добавляем время в соответствующий квадрант
             if instance.task and instance.task.quadrant:

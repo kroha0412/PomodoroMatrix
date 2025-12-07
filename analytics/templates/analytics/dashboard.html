@@ -8,6 +8,27 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'analytics/css/analytics.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* Дополнительные стили для упрощенной аналитики */
+    .metric-card .metric-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #333;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-card .metric-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-card .metric-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -26,7 +47,6 @@
                 <select name="period" id="id_period">
                     <option value="today" {% if selected_period == 'today' %}selected{% endif %}>Сегодня</option>
                     <option value="7" {% if selected_period == '7' %}selected{% endif %}>7 дней</option>
-                    <option value="30" {% if selected_period == '30' %}selected{% endif %}>30 дней</option>
                 </select>
                 <button type="submit" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">
                     Применить
@@ -35,10 +55,11 @@
         </form>
         <div class="date-range-info">
             📅 <strong>{{ start_date|date:"d.m.Y" }}</strong> - <strong>{{ end_date|date:"d.m.Y" }}</strong>
+            ({{ summary.active_days|default:0 }} активных дней)
         </div>
     </div>
 
-    <!-- Ключевые метрики -->
+    <!-- 4 ключевые метрики -->
     <div class="key-metrics">
         <div class="metric-card primary">
             <div class="metric-icon">🚀</div>
@@ -69,89 +90,24 @@
         </div>
     </div>
 
-    <!-- Графики -->
-    <div class="charts-section">
-        <!-- График динамики -->
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>📈 Динамика продуктивности</h3>
-            </div>
-            <div class="chart-container">
-                <canvas id="productivityChart"></canvas>
-            </div>
+    <!-- График динамики -->
+    <div class="chart-card" style="margin-top: 1rem; background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div class="chart-header">
+            <h3 style="font-size: 1rem; color: #333; margin: 0 0 1rem 0;">📈 Динамика продуктивности и фокуса</h3>
         </div>
-
-        <!-- График квадрантов -->
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>🎯 Распределение по квадрантам</h3>
-                <div style="color: #666; font-size: 0.9rem;">
-                    Кв.2: <strong>{{ quadrant_percentages.2|default:0|floatformat:1 }}%</strong>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="quadrantChart"></canvas>
-            </div>
+        <div class="chart-container" style="height: 250px; position: relative;">
+            <canvas id="productivityChart"></canvas>
         </div>
     </div>
 
-    <!-- Анализ распределения времени -->
-    <div class="quadrants-section">
-        <h3 class="section-title">📊 Анализ распределения времени</h3>
-        <div class="quadrants-comparison">
-            <div class="distribution-bars">
-                <h4 style="margin-bottom: 0.75rem; font-size: 0.9rem; color: #333;">Фактическое распределение</h4>
-                {% for key, value in quadrant_percentages.items %}
-                <div class="bar-group">
-                    <div class="bar-label">
-                        <span>{{ key|quadrant_name }}</span>
-                        <span>{{ value|default:0|floatformat:1 }}%</span>
-                    </div>
-                    <div class="bar-container">
-                        <div class="bar-fill quadrant-{{ key }}" style="width: {{ value|default:0 }}%;"></div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="distribution-bars">
-                <h4 style="margin-bottom: 0.75rem; font-size: 0.9rem; color: #333;">Идеальное распределение</h4>
-                {% for key, value in ideal_distribution.items %}
-                <div class="bar-group">
-                    <div class="bar-label">
-                        <span>{{ key|quadrant_name }}</span>
-                        <span>{{ value }}%</span>
-                    </div>
-                    <div class="bar-container">
-                        <div class="bar-fill quadrant-{{ key }}" style="width: {{ value }}%;"></div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Детали по квадрантам -->
-        <div class="quadrant-details">
-            {% for key, value in quadrant_percentages.items %}
-            <div class="quadrant-card q{{ key }}">
-                <div class="quadrant-card-header">
-                    <h4>{{ key|quadrant_name }}</h4>
-                    <span class="quadrant-percentage">{{ value|default:0|floatformat:1 }}%</span>
-                </div>
-                <div class="quadrant-card-time">
-                    {{ quadrant_totals|get_item:key|default:0|format_time_from_seconds }}
-                    {% if key == "1" %}
-                    • Кризисы, дедлайны
-                    {% elif key == "2" %}
-                    • Планирование, развитие
-                    {% elif key == "3" %}
-                    • Отвлечения, просьбы
-                    {% elif key == "4" %}
-                    • Пустая трата времени
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
+    <!-- Пояснение метрик -->
+    <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4ECDC4;">
+        <h4 style="margin-top: 0; color: #333; font-size: 0.9rem;">💡 Как читать метрики:</h4>
+        <div style="font-size: 0.85rem; color: #666; line-height: 1.5;">
+            <p><strong>Продуктивность</strong> (0-100%): общая оценка вашей эффективности. Рассчитывается на основе выполненных задач и Pomodoro сессий.</p>
+            <p><strong>Фокус</strong> (0-100%): насколько хорошо вы концентрировались на задачах. Снижается при прерываниях.</p>
+            <p><strong>Pomodoro сессии</strong>: количество завершенных рабочих интервалов по 25 минут.</p>
+            <p><strong>Задачи выполнено</strong>: общее количество завершенных задач за выбранный период.</p>
         </div>
     </div>
 </div>

@@ -1,7 +1,7 @@
 # analytics/forms.py
 """
 Формы для модуля аналитики и статистики.
-Содержит формы фильтрации данных для построения графиков.
+Только 2 периода: сегодня и 7 дней.
 """
 
 from django import forms
@@ -12,20 +12,19 @@ from datetime import timedelta
 class AnalyticsFilterForm(forms.Form):
     """
     Форма для фильтрации данных аналитики по периодам.
-    Упрощенная версия для единой страницы аналитики.
+    Только сегодня и 7 дней.
     """
 
     # Опции периодов для выбора
     PERIOD_CHOICES = [
         ('today', '📅 Сегодня'),
         ('7', '📅 Последние 7 дней'),
-        ('30', '📅 Последние 30 дней'),
     ]
 
     # Поле выбора периода
     period = forms.ChoiceField(
         choices=PERIOD_CHOICES,
-        initial='30',  # По умолчанию 30 дней
+        initial='7',  # По умолчанию 7 дней
         required=False,
         label='Период анализа',
         widget=forms.Select(attrs={
@@ -39,23 +38,21 @@ class AnalyticsFilterForm(forms.Form):
     def get_date_range(self):
         """
         Возвращает кортеж (start_date, end_date) на основе выбранного периода.
-        Если форма не валидна, возвращает период по умолчанию (30 дней).
+        Если форма не валидна, возвращает период по умолчанию (7 дней).
         """
         if not self.is_valid():
-            # По умолчанию - последние 30 дней
+            # По умолчанию - последние 7 дней
             today = timezone.now().date()
-            return today - timedelta(days=29), today
+            return today - timedelta(days=6), today
 
-        period = self.cleaned_data.get('period', '30')
+        period = self.cleaned_data.get('period', '7')
         today = timezone.now().date()
 
         # Определяем начальную дату на основе выбранного периода
         if period == 'today':
             start_date = today
-        elif period == '7':
+        else:  # '7'
             start_date = today - timedelta(days=6)
-        else:  # '30' или по умолчанию
-            start_date = today - timedelta(days=29)
 
         return start_date, today
 
@@ -64,6 +61,6 @@ class AnalyticsFilterForm(forms.Form):
         Валидация периода - убеждаемся, что значение допустимо.
         """
         period = self.cleaned_data.get('period')
-        if period not in ['today', '7', '30']:
-            return '30'  # Значение по умолчанию если передано некорректное
+        if period not in ['today', '7']:
+            return '7'  # Значение по умолчанию если передано некорректное
         return period
