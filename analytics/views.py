@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import timedelta
 import json
 
 from .models import ProductivityStats
@@ -160,6 +160,53 @@ def api_daily_stats(request):
         'dates': dates,
         'productivity': productivity,
         'focus': focus,
+    }
+
+    return JsonResponse(data)
+
+
+@login_required
+def api_quadrant_stats(request):
+    """
+    API endpoint для получения статистики по квадрантам.
+    """
+    days = int(request.GET.get('days', 30))
+    end_date = timezone.now().date()
+    start_date = end_date - timedelta(days=days - 1)
+
+    stats = ProductivityStats.objects.filter(
+        user=request.user,
+        date__range=[start_date, end_date]
+    )
+
+    # Агрегируем время по квадрантам
+    quadrant_totals = {"1": 0, "2": 0, "3": 0, "4": 0}
+    for stat in stats:
+        if isinstance(stat.time_spent_per_quadrant, dict):
+            for quadrant, time in stat.time_spent_per_quadrant.items():
+                if quadrant in quadrant_totals:
+                    quadrant_totals[quadrant] += time
+
+    total_time = sum(quadrant_totals.values())
+    if total_time > 0:
+        quadrant_percentages = {
+            quadrant: round((time / total_time) * 100, 1)
+            for quadrant, time in quadrant_totals.items()
+        }
+    else:
+        quadrant_percentages = {"1": 0, "2": 0, "3": 0, "4": 0}
+
+    data = {
+        'labels': ['Кв. 1', 'Кв. 2', 'Кв. 3', 'Кв. 4'],
+        'data': [
+            quadrant_percentages.get("1", 0),
+            quadrant_percentages.get("2", 0),
+            quadrant_percentages.get("3", 0),
+            quadrant_percentages.get("4", 0)
+        ],
+        'colors': ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'],
+        'total_time': total_time,
+        'total_time_formatted': f"{total_time // 3600}ч {(total_time % 3600) // 60}м"
     }
 
     return JsonResponse(data)
