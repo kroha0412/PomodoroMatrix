@@ -12,10 +12,10 @@ from datetime import timedelta
 class AnalyticsFilterForm(forms.Form):
     """
     Форма для фильтрации данных аналитики по периодам.
-    Позволяет пользователю выбирать временной диапазон для просмотра статистики.
+    Упрощенная версия для единой страницы аналитики.
     """
 
-    # Опции периодов для выбора (исправленный список)
+    # Опции периодов для выбора
     PERIOD_CHOICES = [
         ('today', '📅 Сегодня'),
         ('7', '📅 Последние 7 дней'),
@@ -26,10 +26,12 @@ class AnalyticsFilterForm(forms.Form):
     period = forms.ChoiceField(
         choices=PERIOD_CHOICES,
         initial='30',  # По умолчанию 30 дней
+        required=False,
         label='Период анализа',
         widget=forms.Select(attrs={
             'class': 'form-control',
-            'style': 'cursor: pointer;'
+            'style': 'cursor: pointer; min-width: 140px;',
+            'onchange': 'this.form.submit()'  # Автоматическая отправка при изменении
         })
     )
 
@@ -56,3 +58,12 @@ class AnalyticsFilterForm(forms.Form):
             start_date = today - timedelta(days=29)
 
         return start_date, today
+
+    def clean_period(self):
+        """
+        Валидация периода - убеждаемся, что значение допустимо.
+        """
+        period = self.cleaned_data.get('period')
+        if period not in ['today', '7', '30']:
+            return '30'  # Значение по умолчанию если передано некорректное
+        return period

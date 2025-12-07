@@ -7,228 +7,161 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'analytics/css/analytics.css' %}">
-<!-- Chart.js для графиков -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
 <div class="analytics-container">
-    <!-- Заголовок и фильтры -->
+    <!-- Заголовок -->
     <div class="analytics-header">
         <h1>📊 Аналитика продуктивности</h1>
-        <p class="subtitle">Отслеживайте вашу эффективность и распределение времени</p>
+        <p class="subtitle">Ключевые метрики вашей эффективности</p>
+    </div>
 
-        <!-- Форма фильтрации -->
-        <div class="filter-card">
-            <form method="get" class="filter-form" id="analytics-filter">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="id_period">Период анализа:</label>
-                        <select name="period" id="id_period" class="form-control">
-                            <option value="today">📅 Сегодня</option>
-                            <option value="7">📅 Последние 7 дней</option>
-                            <option value="30" selected>📅 Последние 30 дней</option>
-                        </select>
+    <!-- Фильтры и период -->
+    <div class="filter-section">
+        <form method="get" class="filter-controls" id="analytics-filter">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="id_period">Период:</label>
+                <select name="period" id="id_period">
+                    <option value="today" {% if selected_period == 'today' %}selected{% endif %}>Сегодня</option>
+                    <option value="7" {% if selected_period == '7' %}selected{% endif %}>7 дней</option>
+                    <option value="30" {% if selected_period == '30' %}selected{% endif %}>30 дней</option>
+                </select>
+                <button type="submit" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">
+                    Применить
+                </button>
+            </div>
+        </form>
+        <div class="date-range-info">
+            📅 <strong>{{ start_date|date:"d.m.Y" }}</strong> - <strong>{{ end_date|date:"d.m.Y" }}</strong>
+        </div>
+    </div>
+
+    <!-- Ключевые метрики -->
+    <div class="key-metrics">
+        <div class="metric-card primary">
+            <div class="metric-icon">🚀</div>
+            <div class="metric-value">{{ summary.avg_productivity|default:0|floatformat:1 }}%</div>
+            <div class="metric-label">Продуктивность</div>
+            <div class="metric-description">Средняя за период</div>
+        </div>
+
+        <div class="metric-card success">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-value">{{ summary.avg_focus|default:0|floatformat:1 }}%</div>
+            <div class="metric-label">Фокус</div>
+            <div class="metric-description">Концентрация на задачах</div>
+        </div>
+
+        <div class="metric-card warning">
+            <div class="metric-icon">🍅</div>
+            <div class="metric-value">{{ summary.total_pomodoros|default:0 }}</div>
+            <div class="metric-label">Pomodoro сессий</div>
+            <div class="metric-description">Всего завершено</div>
+        </div>
+
+        <div class="metric-card info">
+            <div class="metric-icon">✅</div>
+            <div class="metric-value">{{ summary.total_tasks|default:0 }}</div>
+            <div class="metric-label">Задач выполнено</div>
+            <div class="metric-description">Всего завершено</div>
+        </div>
+    </div>
+
+    <!-- Графики -->
+    <div class="charts-section">
+        <!-- График динамики -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>📈 Динамика продуктивности</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="productivityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- График квадрантов -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>🎯 Распределение по квадрантам</h3>
+                <div style="color: #666; font-size: 0.9rem;">
+                    Кв.2: <strong>{{ quadrant_percentages.2|default:0|floatformat:1 }}%</strong>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="quadrantChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Анализ распределения времени -->
+    <div class="quadrants-section">
+        <h3 class="section-title">📊 Анализ распределения времени</h3>
+        <div class="quadrants-comparison">
+            <div class="distribution-bars">
+                <h4 style="margin-bottom: 0.75rem; font-size: 0.9rem; color: #333;">Фактическое распределение</h4>
+                {% for key, value in quadrant_percentages.items %}
+                <div class="bar-group">
+                    <div class="bar-label">
+                        <span>{{ key|quadrant_name }}</span>
+                        <span>{{ value|default:0|floatformat:1 }}%</span>
                     </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">
-                            <span class="icon">🔍</span> Применить
-                        </button>
+                    <div class="bar-container">
+                        <div class="bar-fill quadrant-{{ key }}" style="width: {{ value|default:0 }}%;"></div>
                     </div>
                 </div>
-                <div class="date-range">
-                    📅 Период: <strong>{{ start_date|date:"d.m.Y" }}</strong> - <strong>{{ end_date|date:"d.m.Y" }}</strong>
-                    {% if form.is_valid and form.cleaned_data.period == 'today' %}
-                        (Сегодня)
-                    {% else %}
-                        ({{ summary.total_days }} дней, {{ summary.active_days }} активных)
+                {% endfor %}
+            </div>
+
+            <div class="distribution-bars">
+                <h4 style="margin-bottom: 0.75rem; font-size: 0.9rem; color: #333;">Идеальное распределение</h4>
+                {% for key, value in ideal_distribution.items %}
+                <div class="bar-group">
+                    <div class="bar-label">
+                        <span>{{ key|quadrant_name }}</span>
+                        <span>{{ value }}%</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill quadrant-{{ key }}" style="width: {{ value }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Детали по квадрантам -->
+        <div class="quadrant-details">
+            {% for key, value in quadrant_percentages.items %}
+            <div class="quadrant-card q{{ key }}">
+                <div class="quadrant-card-header">
+                    <h4>{{ key|quadrant_name }}</h4>
+                    <span class="quadrant-percentage">{{ value|default:0|floatformat:1 }}%</span>
+                </div>
+                <div class="quadrant-card-time">
+                    {{ quadrant_totals|get_item:key|default:0|format_time_from_seconds }}
+                    {% if key == "1" %}
+                    • Кризисы, дедлайны
+                    {% elif key == "2" %}
+                    • Планирование, развитие
+                    {% elif key == "3" %}
+                    • Отвлечения, просьбы
+                    {% elif key == "4" %}
+                    • Пустая трата времени
                     {% endif %}
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Навигация по разделам аналитики -->
-    <div class="analytics-nav">
-        <button class="nav-btn active" data-tab="summary">📈 Сводка</button>
-        <button class="nav-btn" data-tab="quadrants">🎯 Квадранты</button>
-    </div>
-
-    <!-- Основной контент с вкладками -->
-    <div class="analytics-content">
-
-        <!-- ВКЛАДКА 1: Сводная статистика -->
-        <div class="tab-content active" id="summary-tab">
-            <!-- Карточки с ключевыми метриками -->
-            <div class="metrics-grid">
-                <!-- Карточка продуктивности -->
-                <div class="metric-card primary">
-                    <div class="metric-icon">🚀</div>
-                    <div class="metric-content">
-                        <h3>Общая продуктивность</h3>
-                        <div class="metric-value">{{ summary.avg_productivity }}%</div>
-                        <p class="metric-description">Средняя оценка за период</p>
-                    </div>
-                </div>
-
-                <!-- Карточка фокуса -->
-                <div class="metric-card warning">
-                    <div class="metric-icon">🎯</div>
-                    <div class="metric-content">
-                        <h3>Фокус</h3>
-                        <div class="metric-value">{{ summary.avg_focus }}%</div>
-                        <div class="metric-subvalue">
-                            Прерываний: {{ summary.total_interruptions }}
-                        </div>
-                        <p class="metric-description">Средняя оценка концентрации</p>
-                    </div>
-                </div>
-
-                <!-- Карточка Pomodoro -->
-                <div class="metric-card success">
-                    <div class="metric-icon">🍅</div>
-                    <div class="metric-content">
-                        <h3>Pomodoro</h3>
-                        <div class="metric-value">{{ summary.total_pomodoros }}</div>
-                        <div class="metric-subvalue">
-                            Эффективность: {{ summary.pomodoro_efficiency }}%
-                        </div>
-                        <p class="metric-description">Всего завершено сессий</p>
-                    </div>
-                </div>
-
-                <!-- Карточка задач -->
-                <div class="metric-card info">
-                    <div class="metric-icon">✅</div>
-                    <div class="metric-content">
-                        <h3>Задачи</h3>
-                        <div class="metric-value">{{ summary.total_tasks }}</div>
-                        <div class="metric-subvalue">
-                            В срок: {{ summary.task_completion_rate }}%
-                        </div>
-                        <p class="metric-description">Всего завершено задач</p>
-                    </div>
-                </div>
             </div>
-
-            <!-- Графики в сводке -->
-            <div class="charts-grid">
-                <!-- График продуктивности по дням -->
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>📈 Продуктивность по дням</h3>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="productivityChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- График распределения по квадрантам -->
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>🎯 Распределение времени по квадрантам</h3>
-                        <div class="chart-stats">
-                            Квадрант 2: <strong>{{ summary.quadrant_2_percentage|floatformat:1 }}%</strong>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="quadrantChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ВКЛАДКА 2: Анализ квадрантов -->
-        <div class="tab-content" id="quadrants-tab">
-            <div class="quadrant-analysis">
-                <h3>🎯 Распределение времени по квадрантам Эйзенхауэра</h3>
-
-                <!-- Детальный анализ по квадрантам -->
-                <div class="quadrant-details">
-                    <h3>📊 Детальный анализ по квадрантам</h3>
-                    <div class="quadrant-cards">
-                        {% for key, value in quadrant_analysis.quadrant_percentages.items %}
-                        <div class="quadrant-detail-card">
-                            <div class="quadrant-header">
-                                <div class="quadrant-color" style="background-color: {{ key|quadrant_color }};"></div>
-                                <h4>{{ key|quadrant_name }}</h4>
-                                <span class="quadrant-percentage">{{ value }}%</span>
-                            </div>
-                            <div class="quadrant-content">
-                                <p class="quadrant-description">
-                                    {% if key == "1" %}
-                                    Важные и срочные задачи (кризисы, дедлайны, проблемы)
-                                    {% elif key == "2" %}
-                                    Важные и несрочные задачи (развитие, планирование, обучение)
-                                    {% elif key == "3" %}
-                                    Срочные, но не важные задачи (отвлечения, чужие просьбы)
-                                    {% elif key == "4" %}
-                                    Не срочные и не важные задачи (пустая трата времени)
-                                    {% endif %}
-                                </p>
-                                <div class="quadrant-time">
-                                    {{ quadrant_analysis.quadrant_totals|get_item:key|format_time_from_seconds }} затрачено
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
 
-<!-- ВСТАВЛЯЕМ ДАННЫЕ СРАЗУ ПОСЛЕ КОНТЕНТА, НО ДО extra_js -->
+<!-- Данные для графиков -->
 <script>
-    // Глобальные переменные для данных - ДОЛЖНЫ БЫТЬ ОБЪЯВЛЕНЫ ПЕРВЫМИ!
     window.chartData = {{ chart_data|safe }};
-    window.analyticsData = {
-        summary: {{ summary|safe }},
-        quadrantAnalysis: {{ quadrant_analysis|safe }},
-        startDate: "{{ start_date|date:'Y-m-d' }}",
-        endDate: "{{ end_date|date:'Y-m-d' }}",
-        period: "{{ form.cleaned_data.period|default:'30' }}"
-    };
-
-    console.log('Chart data loaded:', window.chartData);
-    console.log('Analytics data loaded:', {
-        hasDailyData: window.chartData && window.chartData.daily ? 'Yes' : 'No',
-        dailyLabelsCount: window.chartData && window.chartData.daily ? window.chartData.daily.labels.length : 0,
-        quadrantData: window.chartData && window.chartData.quadrants ? window.chartData.quadrants.data : 'No data',
-        selectedPeriod: window.analyticsData.period
-    });
 </script>
 {% endblock %}
 
 {% block extra_js %}
-<!-- ОСНОВНОЙ СКРИПТ -->
 <script src="{% static 'analytics/js/analytics.js' %}"></script>
-
-<!-- Отладочная проверка -->
-<script>
-    // Проверка после загрузки всего
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('=== FINAL CHECK ===');
-        console.log('Chart data exists:', typeof window.chartData !== 'undefined');
-        console.log('Chart.js loaded:', typeof Chart !== 'undefined');
-
-        if (window.chartData) {
-            console.log('Daily data check:', {
-                labels: window.chartData.daily?.labels,
-                productivity: window.chartData.daily?.productivity,
-                focus: window.chartData.daily?.focus
-            });
-            console.log('Quadrant data check:', window.chartData.quadrants);
-        }
-
-        // Проверяем canvas элементы
-        const prodCanvas = document.getElementById('productivityChart');
-        const quadCanvas = document.getElementById('quadrantChart');
-        console.log('Canvas elements found:', {
-            productivityChart: !!prodCanvas,
-            quadrantChart: !!quadCanvas
-        });
-    });
-</script>
 {% endblock %}
