@@ -1,0 +1,194 @@
+<!-- core/templates/core/methods_guide.html -->
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Инструкция-памятка - MatrixPomodoro{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/methods_guide.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="methods-guide-container">
+    <!-- Шапка инструкции -->
+    <header class="methods-guide-header">
+        <h1>Инструкция-памятка</h1>
+        <p class="subtitle">Краткое руководство по использованию матрицы Эйзенхауэра и метода Pomodoro</p>
+    </header>
+
+    <!-- Два метода в двух колонках -->
+    <div class="methods-grid">
+        <!-- Матрица Эйзенхауэра -->
+        <div class="method-card eisenhower">
+            <div class="method-header">
+                <div class="method-icon"></div>
+                <h2 class="method-title">Матрица Эйзенхауэра</h2>
+            </div>
+
+            <p class="method-description">
+                Метод приоритизации задач по важности и срочности. Помогает определить, на что тратить время в первую очередь.
+            </p>
+
+            <div class="quadrants-summary">
+                <h3>4 квадранта матрицы:</h3>
+
+                <div class="quadrant-item q1">
+                    <div class="quadrant-color" style="background-color: #FF6B6B;"></div>
+                    <div class="quadrant-info">
+                        <div class="quadrant-name">Квадрант 1: Важные и срочные</div>
+                        <div class="quadrant-strategy">Выполнять немедленно</div>
+                    </div>
+                </div>
+
+                <div class="quadrant-item q2">
+                    <div class="quadrant-color" style="background-color: #4ECDC4;"></div>
+                    <div class="quadrant-info">
+                        <div class="quadrant-name">Квадрант 2: Важные и несрочные</div>
+                        <div class="quadrant-strategy">Планировать и выполнять</div>
+                    </div>
+                </div>
+
+                <div class="quadrant-item q3">
+                    <div class="quadrant-color" style="background-color: #45B7D1;"></div>
+                    <div class="quadrant-info">
+                        <div class="quadrant-name">Квадрант 3: Срочные и неважные</div>
+                        <div class="quadrant-strategy">Делегировать или минимизировать</div>
+                    </div>
+                </div>
+
+                <div class="quadrant-item q4">
+                    <div class="quadrant-color" style="background-color: #96CEB4;"></div>
+                    <div class="quadrant-info">
+                        <div class="quadrant-name">Квадрант 4: Несрочные и неважные</div>
+                        <div class="quadrant-strategy">Исключать или ограничивать</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tips-section">
+                <h3><span class="tip-icon"></span> Ключевые принципы:</h3>
+                <div class="tip-list">
+                    <div class="tip">
+                        <span class="tip-icon">✓</span>
+                        <div class="tip-text">Сосредоточьтесь на <strong>Квадранте 2</strong> - это путь к росту и развитию</div>
+                    </div>
+                    <div class="tip">
+                        <span class="tip-icon">✓</span>
+                        <div class="tip-text">Старайтесь минимизировать задачи в <strong>Квадранте 1</strong> через лучшее планирование</div>
+                    </div>
+                    <div class="tip">
+                        <span class="tip-icon">✓</span>
+                        <div class="tip-text">Учитесь говорить "нет" задачам из <strong>Квадранта 3</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Метод Pomodoro -->
+        <div class="method-card pomodoro">
+            <div class="method-header">
+                <div class="method-icon"></div>
+                <h2 class="method-title">Метод Pomodoro</h2>
+            </div>
+
+            <p class="method-description">
+                Техника управления временем, которая разбивает работу на интервалы (помидоры) с короткими перерывами.
+            </p>
+
+            <div class="pomodoro-steps">
+                <h3>5 шагов метода:</h3>
+
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Планирование</h4>
+                        <p>Определите задачи на день, оцените их в Pomodoro</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Рабочий интервал (25 мин)</h4>
+                        <p>Сфокусированная работа без отвлечений</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Короткий перерыв (5 мин)</h4>
+                        <p>Отдых, разминка, смена деятельности</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Повторение циклов</h4>
+                        <p>Работайте в ритме: 25 мин работа → 5 мин отдых</p>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Длинный перерыв (15-30 мин)</h4>
+                        <p>После 4 Pomodoro - полноценный отдых</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tips-section">
+                <h3><span class="tip-icon"></span> Советы по эффективности:</h3>
+                <div class="tip-list">
+                    <div class="tip">
+                        <span class="tip-icon">✓</span>
+                        <div class="tip-text">Во время Pomodoro отключите уведомления и соцсети</div>
+                    </div>
+                    <div class="tip">
+                        <span class="tip-icon">✓</span>
+                        <div class="tip-text">Используйте перерывы для физической активности</div>
+                    </div>
+                    <div class="tip">
+                        <span class="tip-icon">✓</span>
+                        <div class="tip-text">Адаптируйте длительность под себя (20-30 мин работа, 3-10 мин отдых)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Практическое применение -->
+    <section class="practical-application">
+        <h2>Практическое применение системы</h2>
+        <p style="text-align: center; color: #666; margin-bottom: 2rem;">Как объединить матрицу и Pomodoro для максимальной продуктивности</p>
+
+        <div class="workflow-steps">
+            <div class="workflow-step">
+                <div class="workflow-number">1</div>
+                <h3>Создайте задачи</h3>
+                <p>Добавьте все задачи в систему и оцените их в Pomodoro</p>
+            </div>
+
+            <div class="workflow-step">
+                <div class="workflow-number">2</div>
+                <h3>Распределите по квадрантам</h3>
+                <p>Определите важность и срочность каждой задачи</p>
+            </div>
+
+            <div class="workflow-step">
+                <div class="workflow-number">3</div>
+                <h3>Начните с Квадранта 2</h3>
+                <p>Фокусируйтесь на важных несрочных задачах</p>
+            </div>
+
+            <div class="workflow-step">
+                <div class="workflow-number">4</div>
+                <h3>Используйте Pomodoro</h3>
+                <p>Работайте над задачами в режиме 25/5</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -126,16 +126,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # Выводит письма в КОНСОЛЬ терминала
+# Email backend (для разработки - выводит в консоль)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Редирект после успешного входа
-LOGIN_REDIRECT_URL = '/tasks/matrix/'
+# URL для перенаправлений
+LOGIN_REDIRECT_URL = '/methods-guide/'  # После входа - на инструкцию-памятку
+LOGOUT_REDIRECT_URL = '/'                     # После выхода - на главную
+LOGIN_URL = '/users/login/'                   # Страница входа (если требуется аутентификация)
 
-# Редирект после выхода
-LOGOUT_REDIRECT_URL = '/'
-
-# URL для входа (если требуется аутентификация)
-LOGIN_URL = '/users/login/'
 
 # LOGGING configuration
 LOGGING = {

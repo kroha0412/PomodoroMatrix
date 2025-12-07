@@ -1,10 +1,12 @@
 # core/views.py
 # Импортируем функцию render из модуля django.shortcuts
 # render - это "сборщик" который объединяет HTML-шаблон с данными
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .decorators import anonymous_required, authenticated_required
 
 
 # Создаем функцию-представление для главной страницы
+@anonymous_required
 def home(request):
     """
     Представление для главной страницы.
@@ -49,6 +51,7 @@ def home(request):
 
 
 # Функция-представление для страницы "О проекте"
+@anonymous_required
 def about(request):
     """Представление для страницы 'О проекте'"""
 
@@ -66,6 +69,7 @@ def about(request):
 
 
 # Функция-представление для обучения матрице Эйзенхауэра
+@anonymous_required
 def eisenhower_method(request):
     """Представление для страницы обучения матрице Эйзенхауэра"""
 
@@ -127,6 +131,7 @@ def eisenhower_method(request):
 
 
 # Функция-представление для обучения методу Pomodoro
+@anonymous_required
 def pomodoro_technique(request):
     """Представление для страницы обучения методу Pomodoro"""
 
@@ -188,3 +193,16 @@ def pomodoro_technique(request):
 
     # Возвращаем страницу обучения методу Pomodoro
     return render(request, 'core/pomodoro_technique.html', context)
+
+
+@authenticated_required
+def methods_guide(request):
+    """
+    Инструкция-памятка по методам для авторизованных пользователей.
+    Краткое напоминание о матрице Эйзенхауэра и методе Pomodoro.
+    """
+    context = {
+        'title': 'Инструкция-памятка',
+    }
+
+    return render(request, 'core/methods_guide.html', context)
