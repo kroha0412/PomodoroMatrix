@@ -1,7 +1,4 @@
-# analytics/apps.py
-"""
-Конфигурация приложения Analytics.
-"""
+# analytics/apps.py - должно быть:
 
 from django.apps import AppConfig
 
@@ -15,5 +12,4 @@ class AnalyticsConfig(AppConfig):
         Метод вызывается при загрузке приложения.
         Регистрируем сигналы.
         """
-        # Импортируем сигналы здесь, чтобы они были зарегистрированы
-        import analytics.signals
+        import analytics.signals  # ЭТА СТРОКА ДОЛЖНА БЫТЬ

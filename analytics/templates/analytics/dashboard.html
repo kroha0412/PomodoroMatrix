@@ -35,7 +35,7 @@
 <div class="analytics-container">
     <!-- Заголовок -->
     <div class="analytics-header">
-        <h1>📊 Аналитика продуктивности</h1>
+        <h1> Аналитика продуктивности</h1>
         <p class="subtitle">Ключевые метрики вашей эффективности</p>
     </div>
 
@@ -54,7 +54,7 @@
             </div>
         </form>
         <div class="date-range-info">
-            📅 <strong>{{ start_date|date:"d.m.Y" }}</strong> - <strong>{{ end_date|date:"d.m.Y" }}</strong>
+             <strong>{{ start_date|date:"d.m.Y" }}</strong> - <strong>{{ end_date|date:"d.m.Y" }}</strong>
             ({{ summary.active_days|default:0 }} активных дней)
         </div>
     </div>
@@ -62,28 +62,28 @@
     <!-- 4 ключевые метрики -->
     <div class="key-metrics">
         <div class="metric-card primary">
-            <div class="metric-icon">🚀</div>
+            <div class="metric-icon"></div>
             <div class="metric-value">{{ summary.avg_productivity|default:0|floatformat:1 }}%</div>
             <div class="metric-label">Продуктивность</div>
             <div class="metric-description">Средняя за период</div>
         </div>
 
         <div class="metric-card success">
-            <div class="metric-icon">🎯</div>
+            <div class="metric-icon"></div>
             <div class="metric-value">{{ summary.avg_focus|default:0|floatformat:1 }}%</div>
             <div class="metric-label">Фокус</div>
             <div class="metric-description">Концентрация на задачах</div>
         </div>
 
         <div class="metric-card warning">
-            <div class="metric-icon">🍅</div>
+            <div class="metric-icon"></div>
             <div class="metric-value">{{ summary.total_pomodoros|default:0 }}</div>
             <div class="metric-label">Pomodoro сессий</div>
             <div class="metric-description">Всего завершено</div>
         </div>
 
         <div class="metric-card info">
-            <div class="metric-icon">✅</div>
+            <div class="metric-icon"></div>
             <div class="metric-value">{{ summary.total_tasks|default:0 }}</div>
             <div class="metric-label">Задач выполнено</div>
             <div class="metric-description">Всего завершено</div>
