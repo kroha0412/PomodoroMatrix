@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <!-- 4 ключевые метрики -->
+    <!-- 3 ключевые метрики (без Pomodoro сессий) -->
     <div class="key-metrics">
         <div class="metric-card primary">
             <div class="metric-icon"></div>
@@ -75,13 +75,6 @@
             <div class="metric-description">Концентрация на задачах</div>
         </div>
 
-        <div class="metric-card warning">
-            <div class="metric-icon"></div>
-            <div class="metric-value">{{ summary.total_pomodoros|default:0 }}</div>
-            <div class="metric-label">Pomodoro сессий</div>
-            <div class="metric-description">Всего завершено</div>
-        </div>
-
         <div class="metric-card info">
             <div class="metric-icon"></div>
             <div class="metric-value">{{ summary.total_tasks|default:0 }}</div>
@@ -93,7 +86,7 @@
     <!-- График динамики -->
     <div class="chart-card" style="margin-top: 1rem; background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <div class="chart-header">
-            <h3 style="font-size: 1rem; color: #333; margin: 0 0 1rem 0;">📈 Динамика продуктивности и фокуса</h3>
+            <h3 style="font-size: 1rem; color: #333; margin: 0 0 1rem 0;"> Динамика продуктивности и фокуса</h3>
         </div>
         <div class="chart-container" style="height: 250px; position: relative;">
             <canvas id="productivityChart"></canvas>
@@ -102,11 +95,10 @@
 
     <!-- Пояснение метрик -->
     <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4ECDC4;">
-        <h4 style="margin-top: 0; color: #333; font-size: 0.9rem;">💡 Как читать метрики:</h4>
+        <h4 style="margin-top: 0; color: #333; font-size: 0.9rem;"> Как читать метрики:</h4>
         <div style="font-size: 0.85rem; color: #666; line-height: 1.5;">
             <p><strong>Продуктивность</strong> (0-100%): общая оценка вашей эффективности. Рассчитывается на основе выполненных задач и Pomodoro сессий.</p>
             <p><strong>Фокус</strong> (0-100%): насколько хорошо вы концентрировались на задачах. Снижается при прерываниях.</p>
-            <p><strong>Pomodoro сессии</strong>: количество завершенных рабочих интервалов по 25 минут.</p>
             <p><strong>Задачи выполнено</strong>: общее количество завершенных задач за выбранный период.</p>
         </div>
     </div>

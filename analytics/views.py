@@ -1,6 +1,6 @@
 # analytics/views.py
 """
-Упрощенная аналитика - только 4 метрики и график.
+Упрощенная аналитика - только 3 метрики и график.
 """
 from django.db.models import Sum, Avg, Count
 from django.shortcuts import render
@@ -17,7 +17,7 @@ from .forms import AnalyticsFilterForm
 @login_required
 def analytics_dashboard(request):
     """
-    Упрощенная панель аналитики - только 4 метрики и график.
+    Упрощенная панель аналитики - только 3 метрики и график.
     """
     # Инициализация формы фильтрации
     form = AnalyticsFilterForm(request.GET or None)
@@ -39,7 +39,7 @@ def analytics_dashboard(request):
     ).order_by('date')
 
     # Простая сводная статистика за период
-    total_pomodoros = stats.aggregate(total=Sum('total_pomodoros_completed'))['total'] or 0
+    # УБРАЛИ: total_pomodoros - не показываем количество Pomodoro сессий
     total_tasks = stats.aggregate(total=Sum('total_tasks_completed'))['total'] or 0
     avg_productivity = stats.aggregate(avg=Avg('productivity_score'))['avg'] or 0
     avg_focus = stats.aggregate(avg=Avg('focus_score'))['avg'] or 0
@@ -48,7 +48,6 @@ def analytics_dashboard(request):
     active_days = stats.count()
 
     summary = {
-        'total_pomodoros': total_pomodoros,
         'total_tasks': total_tasks,
         'avg_productivity': round(avg_productivity, 1),
         'avg_focus': round(avg_focus, 1),
@@ -63,10 +62,9 @@ def analytics_dashboard(request):
 
     current_date = start_date
     while current_date <= end_date:
-        day_stats = stats.filter(date=current_date).first()
         dates.append(current_date.strftime('%d.%m'))
 
-        if day_stats:
+        if day_stats := stats.filter(date=current_date).first():
             productivity_scores.append(float(day_stats.productivity_score))
             focus_scores.append(float(day_stats.focus_score))
         else:
